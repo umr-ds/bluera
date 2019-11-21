@@ -1,4 +1,4 @@
-# bluera
+# Bluera
 
 A new Flutter project.
 
