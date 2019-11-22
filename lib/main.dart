@@ -3,10 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:Bluera/screens/Home.dart';
 
 void main() {
-  runApp(new FriendlychatApp());
+  runApp(new Bluera());
 }
 
-class FriendlychatApp extends StatelessWidget {
+class Bluera extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(

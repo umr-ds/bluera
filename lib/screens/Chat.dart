@@ -1,23 +1,23 @@
+import 'package:Bluera/data/User.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-
-const String _name = "Distributed Systems";
+import 'package:Bluera/data/Message.dart';
+import 'package:Bluera/data/Channel.dart';
 
 class ChatScreen extends StatefulWidget {
-  ChatScreen(this.channelName);
+  ChatScreen(this.channel);
 
-  final String channelName;
+  final Channel channel;
 
   @override
-  State createState() => new ChatScreenState(channelName);
+  State createState() => new ChatScreenState(channel);
 }
 
-class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
-  ChatScreenState(this.channelName);
+class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
 
-  final String channelName;
+  ChatScreenState(this.channel);
 
-  final List<ChatMessage> _messages = <ChatMessage>[];
+  final Channel channel;
 
   final TextEditingController _textController = new TextEditingController();
 
@@ -25,8 +25,6 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    for (ChatMessage message in _messages)
-      message.animationController.dispose();
     super.dispose();
   }
 
@@ -35,24 +33,27 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     setState(() {
       _isComposing = false;
     });
-    ChatMessage message = new ChatMessage(
-      text: text,
+    // TODO: ADD LOCAL USER SIGELTON
+    User _usr = new User("Distributed Systems", true);
+    Message _msg = new Message(_usr, text);
+    MessageItem messageItem = new MessageItem(
+      message: _msg,
       animationController: new AnimationController(
         duration: new Duration(milliseconds: 100),
         vsync: this,
       ),
     );
     setState(() {
-      _messages.insert(0, message);
+      channel.messages.insert(0, _msg);
     });
-    message.animationController.forward();
+    messageItem.animationController.forward();
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(channelName),
+        title: new Text(channel.name),
         backgroundColor: Color(0xFF0A3D91),
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
       ),
@@ -62,8 +63,19 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             child: new ListView.builder(
               padding: new EdgeInsets.all(8.0),
               reverse: true,
-              itemBuilder: (_, int index) => _messages[index],
-              itemCount: _messages.length,
+              itemBuilder: (_, int index) {
+                Message _msg = channel.messages[index];
+                MessageItem _msgItm = new MessageItem(
+                  message: _msg,
+                  animationController: new AnimationController(
+                    duration: new Duration(milliseconds: 100),
+                    vsync: this,
+                  ),
+                );
+                _msgItm.animationController.forward();
+                return _msgItm;
+              },
+              itemCount: channel.messages.length,
             ),
           ),
           new Divider(height: 1.0),
@@ -87,9 +99,11 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               child: new TextField(
                 controller: _textController,
                 onChanged: (String text) {
-                  setState(() {
-                    _isComposing = text.length > 0;
-                  });
+                  if (!_isComposing) {
+                    setState(() {
+                      _isComposing = text.length > 0;
+                    });
+                  }
                 },
                 onSubmitted: _handleSubmitted,
                 decoration:
@@ -117,42 +131,5 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         ),
       ),
     );
-  }
-}
-
-class ChatMessage extends StatelessWidget {
-  ChatMessage({this.text, this.animationController});
-  final String text;
-  final AnimationController animationController;
-  @override
-  Widget build(BuildContext context) {
-    return new SizeTransition(
-        sizeFactor: new CurvedAnimation(
-            parent: animationController, curve: Curves.easeOut),
-        axisAlignment: 0.0,
-        child: new Container(
-          margin: const EdgeInsets.symmetric(vertical: 10.0),
-          child: new Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              new Container(
-                margin: const EdgeInsets.only(right: 16.0),
-                child: new CircleAvatar(child: new Text(_name[0])),
-              ),
-              new Expanded(
-                child: new Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    new Text(_name, style: Theme.of(context).textTheme.subhead),
-                    new Container(
-                      margin: const EdgeInsets.only(top: 5.0),
-                      child: new Text(text),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ));
   }
 }

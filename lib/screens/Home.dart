@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:Bluera/screens/Chat.dart';
+import 'package:Bluera/data/Channel.dart';
+import 'package:Bluera/data/MockData.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -22,50 +23,9 @@ class HomeScreen extends StatelessWidget {
       body: ListView.separated(
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemBuilder: (BuildContext context, int index) =>
-            ChannelItem(_channels[index], context),
-        itemCount: _channels.length,
+            ChannelOverviewItem(channelOverviews[index], context),
+        itemCount: channelOverviews.length,
       ),
     );
-  }
-}
-
-class Channel {
-  Channel(this.name, this.lastMessage);
-
-  final String name;
-  final String lastMessage;
-}
-
-final List<Channel> _channels = <Channel>[
-  Channel("Announcements", "Keep Calm"),
-  Channel("Public Chat", "and use Bluera")
-];
-
-class ChannelItem extends StatelessWidget {
-  const ChannelItem(this.entry, this.context);
-
-  final Channel entry;
-  final BuildContext context;
-
-  Widget _buildTiles(Channel chan) {
-    return ListTile(
-      key: PageStorageKey<Channel>(chan),
-      title: Text(chan.name),
-      subtitle: Text(chan.lastMessage),
-      trailing: Icon(Icons.arrow_forward_ios),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(chan.name),
-          ),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _buildTiles(entry);
   }
 }
