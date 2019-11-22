@@ -45,6 +45,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Bluera"),
+        backgroundColor: Color(0xFF0A3D91),
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
       ),
       body: new Column(
@@ -97,6 +98,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           : null,
                     )
                   : new IconButton(
+                      color: Color(0xFF0A3D91),
                       icon: new Icon(Icons.send),
                       onPressed: _isComposing
                           ? () => _handleSubmitted(_textController.text)
