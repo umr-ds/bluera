@@ -42,3 +42,26 @@ class ChannelOverviewItem extends StatelessWidget {
     );
   }
 }
+
+class AddChannelOverviewItem extends StatelessWidget {
+  const AddChannelOverviewItem(this.chan);
+
+  final ChannelOverview chan;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      key: PageStorageKey<ChannelOverview>(chan),
+      title: Text(chan.name),
+      trailing: Icon(Icons.person_add),
+      onTap: () {
+        notPartChannelOverviews.remove(chan);
+        channelOverviews.add(chan);
+        Channel channel = getChannelFrom(chan.name, notPartChannels);
+        notPartChannels.remove(channel);
+        channels.add(channel);
+        Navigator.pop(context);
+      },
+    );
+  }
+}

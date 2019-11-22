@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:Bluera/data/Channel.dart';
 import 'package:Bluera/data/MockData.dart';
+import 'package:Bluera/screens/AddChannel.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -12,8 +13,16 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Color(0xFF0A3D91),
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.add),
-            onPressed: (){},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddChannelDialog(),
+                ),
+              );
+            },
           ),
+          // TODO: REPLACE WITH DOTS, DROP DOWN MENU WITH USER MANAGEMENT, CONNECT/SCAN, LORA SETTINGS
           new IconButton(icon: new Icon(Icons.settings),
             onPressed: (){},
           ),
