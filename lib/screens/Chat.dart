@@ -1,8 +1,8 @@
-import 'package:Bluera/data/User.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:Bluera/data/Message.dart';
 import 'package:Bluera/data/Channel.dart';
+import 'package:Bluera/data/MockData.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);
@@ -33,9 +33,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
     setState(() {
       _isComposing = false;
     });
-    // TODO: ADD LOCAL USER SIGELTON
-    User _usr = new User("Distributed Systems", true);
-    Message _msg = new Message(_usr, text);
+    Message _msg = new Message(localUser, text);
     MessageItem messageItem = new MessageItem(
       message: _msg,
       animationController: new AnimationController(

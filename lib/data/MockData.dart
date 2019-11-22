@@ -2,27 +2,28 @@ import 'package:Bluera/data/Channel.dart';
 import 'package:Bluera/data/Message.dart';
 import 'package:Bluera/data/User.dart';
 
+User localUser = new User("Distributed Systems", true);
+
 final List<ChannelOverview> channelOverviews = <ChannelOverview>[
   ChannelOverview("Announcements", "Keep Calm"),
   ChannelOverview("Public Chat", "and use Bluera")
 ];
 
-User me = new User("Distributed Systems", true);
 User other = new User("Verpeilte Systeme", false);
 User third = new User("Anon", false);
 
 List<Message> announceMessages = <Message>[
-  Message(other, "Achtung Feuer"),
+  Message(third, "Super"),
+  Message(localUser, "Unterwegs"),
   Message(third, "Treffpunkt: Hof"),
-  Message(me, "Unterwegs"),
-  Message(third, "Super")
+  Message(other, "Achtung Feuer"),
 ];
 
 List<Message> publicMessages = <Message>[
-  Message(other, "Ganz tolle Nachricht."),
+  Message(third, "toll"),
+  Message(localUser, "Und ich erst."),
   Message(third, "Finde ich auch."),
-  Message(me, "Und ich erst."),
-  Message(third, "toll")
+  Message(other, "Ganz tolle Nachricht."),
 ];
 
 Channel announcements = Channel("Announcements", announceMessages);
