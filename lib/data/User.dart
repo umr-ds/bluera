@@ -1,6 +1,6 @@
 class User {
   User(this.name, this.isLocalUser);
 
-  final String name;
+  String name;
   final bool isLocalUser;
 }

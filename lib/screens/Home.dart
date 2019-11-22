@@ -3,6 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:Bluera/data/Channel.dart';
 import 'package:Bluera/data/MockData.dart';
 import 'package:Bluera/screens/AddChannel.dart';
+import 'package:Bluera/screens/UserSettings.dart';
+import 'package:Bluera/screens/BluetoothSettings.dart';
+import 'package:Bluera/screens/LoraSettings.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -22,9 +25,17 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
-          // TODO: REPLACE WITH DOTS, DROP DOWN MENU WITH USER MANAGEMENT, CONNECT/SCAN, LORA SETTINGS
-          new IconButton(icon: new Icon(Icons.settings),
-            onPressed: (){},
+          PopupMenuButton<Icon>(
+            icon: Icon(Icons.more_horiz),
+            onSelected: (Icon result) => moreButtonAction(result, context),
+            itemBuilder: (BuildContext context) {
+              return MoreButtonConstants.moreButtonItems.map((Icon choice) {
+                return PopupMenuItem<Icon>(
+                  value: choice,
+                  child: choice,
+                );
+              }).toList();
+            },
           ),
         ],
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
@@ -34,6 +45,44 @@ class HomeScreen extends StatelessWidget {
         itemBuilder: (BuildContext context, int index) =>
             ChannelOverviewItem(channelOverviews[index], context),
         itemCount: channelOverviews.length,
+      ),
+    );
+  }
+}
+
+
+class MoreButtonConstants {
+  static Icon userSettings = new Icon(Icons.perm_identity);
+  static Icon bluetoothSettings = new Icon(Icons.settings_bluetooth);
+  static Icon loraSettings = new Icon(Icons.settings_input_antenna);
+
+  static final List<Icon> moreButtonItems = [
+    userSettings,
+    bluetoothSettings,
+    loraSettings
+  ];
+}
+
+void moreButtonAction(Icon choice, BuildContext context) {
+  if (choice == MoreButtonConstants.userSettings) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserSettingsScreen(),
+      ),
+    );
+  } else if (choice == MoreButtonConstants.bluetoothSettings) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BluetoothSettingsScreen(),
+      ),
+    );
+  } else if (choice == MoreButtonConstants.loraSettings) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LoraSettingsScreen(),
       ),
     );
   }
