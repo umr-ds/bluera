@@ -4,11 +4,19 @@ import 'package:flutter/cupertino.dart';
 const String _name = "Distributed Systems";
 
 class ChatScreen extends StatefulWidget {
+  ChatScreen(this.channelName);
+
+  final String channelName;
+
   @override
-  State createState() => new ChatScreenState();
+  State createState() => new ChatScreenState(channelName);
 }
 
 class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
+  ChatScreenState(this.channelName);
+
+  final String channelName;
+
   final List<ChatMessage> _messages = <ChatMessage>[];
 
   final TextEditingController _textController = new TextEditingController();
@@ -44,7 +52,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Bluera"),
+        title: new Text(channelName),
         backgroundColor: Color(0xFF0A3D91),
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
       ),
