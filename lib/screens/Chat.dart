@@ -54,6 +54,18 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
         title: new Text(channel.name),
         backgroundColor: Color(0xFF0A3D91),
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
+        actions: <Widget>[
+          new IconButton(icon: new Icon(Icons.open_in_new),
+            onPressed: (){
+              channels.remove(channel);
+              notPartChannels.add(channel);
+              ChannelOverview _chnOvrview = getChannelOverviewFrom(channel.name, channelOverviews);
+              channelOverviews.remove(_chnOvrview);
+              notPartChannelOverviews.add(_chnOvrview);
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
       body: new Column(
         children: <Widget>[
