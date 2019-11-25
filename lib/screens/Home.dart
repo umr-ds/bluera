@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:Bluera/data/Channel.dart';
-import 'package:Bluera/data/MockData.dart';
-import 'package:Bluera/screens/AddChannel.dart';
-import 'package:Bluera/screens/UserSettings.dart';
-import 'package:Bluera/screens/BluetoothSettings.dart';
-import 'package:Bluera/screens/LoraSettings.dart';
+import 'package:BlueRa/data/Channel.dart';
+import 'package:BlueRa/data/MockData.dart';
+import 'package:BlueRa/screens/AddChannel.dart';
+import 'package:BlueRa/screens/UserSettings.dart';
+import 'package:BlueRa/screens/BluetoothSettings.dart';
+import 'package:BlueRa/screens/LoraSettings.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Bluera"),
+        title: new Text("BlueRa"),
         backgroundColor: Color(0xFF0A3D91),
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.add),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:Bluera/data/MockData.dart';
-import 'package:Bluera/data/Channel.dart';
-import 'package:Bluera/data/Message.dart';
+import 'package:BlueRa/data/MockData.dart';
+import 'package:BlueRa/data/Channel.dart';
+import 'package:BlueRa/data/Message.dart';
 
 class AddChannelDialog extends StatefulWidget {
   String _channelNameField = "";

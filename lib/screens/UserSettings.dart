@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:Bluera/data/MockData.dart';
+import 'package:BlueRa/data/MockData.dart';
 
 class UserSettingsScreen extends StatelessWidget {
   final TextEditingController _userNameController = new TextEditingController();

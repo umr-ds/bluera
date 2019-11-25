@@ -1,12 +1,12 @@
-import 'package:Bluera/data/Channel.dart';
-import 'package:Bluera/data/Message.dart';
-import 'package:Bluera/data/User.dart';
+import 'package:BlueRa/data/Channel.dart';
+import 'package:BlueRa/data/Message.dart';
+import 'package:BlueRa/data/User.dart';
 
 User localUser = new User("Distributed Systems", true);
 
 List<ChannelOverview> channelOverviews = <ChannelOverview>[
   ChannelOverview("Announcements", "Keep Calm"),
-  ChannelOverview("Public Chat", "and use Bluera")
+  ChannelOverview("Public Chat", "and use BlueRa")
 ];
 
 List<ChannelOverview> notPartChannelOverviews = <ChannelOverview>[

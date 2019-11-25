@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:Bluera/screens/Home.dart';
+import 'package:BlueRa/screens/Home.dart';
 
 void main() {
-  runApp(new Bluera());
+  runApp(new BlueRa());
 }
 
-class Bluera extends StatelessWidget {
+class BlueRa extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: "Bluera",
+      title: "BlueRa",
       home: new HomeScreen(),
     );
   }

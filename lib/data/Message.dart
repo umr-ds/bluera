@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:Bluera/data/User.dart';
+import 'package:BlueRa/data/User.dart';
 
 class Message {
   Message(this.user, this.text);

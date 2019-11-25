@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:Bluera/data/Message.dart';
-import 'package:Bluera/data/Channel.dart';
-import 'package:Bluera/data/MockData.dart';
+import 'package:BlueRa/data/Message.dart';
+import 'package:BlueRa/data/Channel.dart';
+import 'package:BlueRa/data/MockData.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);

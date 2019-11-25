@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:Bluera/screens/Chat.dart';
-import 'package:Bluera/data/Message.dart';
-import 'package:Bluera/data/MockData.dart';
+import 'package:BlueRa/screens/Chat.dart';
+import 'package:BlueRa/data/Message.dart';
+import 'package:BlueRa/data/MockData.dart';
 
 class Channel {
   Channel(this.name, this.messages);
