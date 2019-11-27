@@ -113,6 +113,13 @@ class BluetoothScanScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Scan'),
         backgroundColor: Color(0xFF0A3D91),
+        actions: <Widget>[
+          new IconButton(icon: new Icon(Icons.bluetooth_searching),
+            onPressed: () {
+              FlutterBlue.instance.startScan(timeout: Duration(seconds: 4));
+            },
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () =>
@@ -126,9 +133,7 @@ class BluetoothScanScreen extends StatelessWidget {
                 builder: (c, snapshot) => Column(
                   children: snapshot.data
                       .map(
-                        (r) => ScanResultTile(
-                          result: r,
-                        ),
+                        (r) => ScanResultTile(r),
                       )
                       .toList(),
                 ),
@@ -137,31 +142,21 @@ class BluetoothScanScreen extends StatelessWidget {
           ),
         ),
       ),
-
-      floatingActionButton: StreamBuilder<bool>(
-        stream: FlutterBlue.instance.isScanning,
-        initialData: false,
-        builder: (c, snapshot) {
-          if (snapshot.data) {
-            return FloatingActionButton(
-              child: Icon(Icons.stop),
-              onPressed: () => FlutterBlue.instance.stopScan(),
-              backgroundColor: Colors.red,
-            );
-          } else {
-            return FloatingActionButton(
-                child: Icon(Icons.search),
-                onPressed: () => FlutterBlue.instance
-                    .startScan(timeout: Duration(seconds: 4)));
-          }
-        },
-      ),
     );
   }
 }
 
-class ScanResultTile extends StatelessWidget {
-  const ScanResultTile({Key key, this.result}) : super(key: key);
+class ScanResultTile extends StatefulWidget {
+  ScanResultTile(this.result);
+
+  final ScanResult result;
+
+  State createState() => new ScanResultTileState(result);
+}
+
+class ScanResultTileState extends State<ScanResultTile> {
+
+  ScanResultTileState(this.result);
 
   final ScanResult result;
 
@@ -186,8 +181,26 @@ class ScanResultTile extends StatelessWidget {
     }
   }
 
-  void _connectAndReturn(BluetoothDevice device, BuildContext context) {
-    device.connect();
+  void _connectAndReturn(BluetoothDevice device, BuildContext context) async {
+    await device.connect();
+
+    List<BluetoothService> services = await device.discoverServices();
+
+    setState(() {
+      bluetoothDev = device;
+
+      services.forEach((service) {
+        if (service.uuid == serviceUUID) {
+          for(BluetoothCharacteristic characteristic in service.characteristics) {
+            if (characteristic.uuid == writeCharacteristicUUID) {
+              print("Found characteristic!");
+              writeCharacteristic = characteristic;
+            }
+          }
+        }
+      });
+    });
+
     Navigator.pop(context);
   }
 

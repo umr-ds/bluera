@@ -19,17 +19,17 @@ User other = new User("Verpeilte Systeme", false);
 User third = new User("Anon", false);
 
 List<Message> announceMessages = <Message>[
-  Message(third, "Super"),
-  Message(localUser, "Unterwegs"),
-  Message(third, "Treffpunkt: Hof"),
-  Message(other, "Achtung Feuer"),
+  Message(third, "Super", "Announcements", "1574689628"),
+  Message(localUser, "Unterwegs", "Announcements", "1574689728"),
+  Message(third, "Treffpunkt: Hof", "Announcements", "1574689828"),
+  Message(other, "Achtung Feuer", "Announcements", "1574689928"),
 ];
 
 List<Message> publicMessages = <Message>[
-  Message(third, "toll"),
-  Message(localUser, "Und ich erst."),
-  Message(third, "Finde ich auch."),
-  Message(other, "Ganz tolle Nachricht."),
+  Message(third, "toll", "Public Chat", "1574689628"),
+  Message(localUser, "Und ich erst.", "Public Chat", "1574689728"),
+  Message(third, "Finde ich auch.", "Public Chat", "1574689828"),
+  Message(other, "Ganz tolle Nachricht.", "Public Chat", "1574689928"),
 ];
 
 Channel announcements = Channel("Announcements", announceMessages);

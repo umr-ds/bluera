@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:BlueRa/data/Message.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/MockData.dart';
+import 'package:BlueRa/settings/Bluetooth.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);
@@ -28,12 +30,12 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
     super.dispose();
   }
 
-  void _handleSubmitted(String text) {
+  Future _handleSubmitted(String text) async {
     _textController.clear();
     setState(() {
       _isComposing = false;
     });
-    Message _msg = new Message(localUser, text);
+    Message _msg = new Message(localUser, text, channel.name, DateTime.now().toUtc().millisecondsSinceEpoch.toString());
     MessageItem messageItem = new MessageItem(
       message: _msg,
       animationController: new AnimationController(
@@ -41,6 +43,11 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
         vsync: this,
       ),
     );
+
+    if (bluetoothDev != null && writeCharacteristic != null) {
+      await writeCharacteristic.write(_msg.preparedMessage());
+    }
+
     setState(() {
       channel.messages.insert(0, _msg);
     });
