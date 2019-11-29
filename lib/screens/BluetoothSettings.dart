@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:BlueRa/settings/Bluetooth.dart';
+import 'package:BlueRa/connectors/RF95.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
 class BluetoothSettingsScreen extends StatefulWidget {
@@ -161,16 +161,19 @@ class ScanResultTile extends StatelessWidget {
 
   void _connectAndReturn(BluetoothDevice device, BuildContext context) async {
     await device.connect();
+    rf95 = RF95(device);
 
     List<BluetoothService> services = await device.discoverServices();
-
-    bluetoothDev = device;
 
     services.forEach((service) {
       if (service.uuid == serviceUUID) {
         for(BluetoothCharacteristic characteristic in service.characteristics) {
           if (characteristic.uuid == writeCharacteristicUUID) {
-            writeCharacteristic = characteristic;
+            rf95.writeCharacteristic = characteristic;
+          }
+
+          if (characteristic.uuid == readCharacteristicUUID) {
+            rf95.readCharacteristic = characteristic;
           }
         }
       }

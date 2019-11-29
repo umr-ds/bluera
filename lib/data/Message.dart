@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:BlueRa/data/User.dart';
-import 'package:convert/convert.dart';
-
-import 'dart:math';
-import 'dart:convert';
 
 class Message {
   Message(this.user, this.text, this.channel, this.timestamp);
@@ -12,11 +8,6 @@ class Message {
   final String text;
   final String channel;
   final String timestamp;
-
-  List<int> preparedMessage() {
-    final String completeMessage = user.name + "|" + channel + "|" + timestamp + "|" + text;
-    return ("AT+TX=" + hex.encode(utf8.encode(completeMessage)) + "\n").codeUnits;
-  }
 }
 
 class MessageItem extends StatelessWidget {

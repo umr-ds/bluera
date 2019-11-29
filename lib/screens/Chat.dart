@@ -3,8 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:BlueRa/data/Message.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/MockData.dart';
-import 'package:BlueRa/settings/Bluetooth.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:BlueRa/connectors/RF95.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);
@@ -44,9 +43,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
       ),
     );
 
-    if (bluetoothDev != null && writeCharacteristic != null) {
-      await writeCharacteristic.write(_msg.preparedMessage());
-    }
+    rf95.send(_msg);
 
     setState(() {
       channel.messages.insert(0, _msg);
