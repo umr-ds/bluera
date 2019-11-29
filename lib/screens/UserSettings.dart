@@ -20,7 +20,7 @@ class UserSettingsScreen extends StatelessWidget {
                 controller: _userNameController,
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText: localUser.name
+                  hintText: localUser
                 ),
               ),
               new Row(
@@ -28,7 +28,7 @@ class UserSettingsScreen extends StatelessWidget {
                   new Expanded(
                     child: new RaisedButton(
                       onPressed: () {
-                        localUser.name = _userNameController.text;
+                        localUser = _userNameController.text;
                         Navigator.pop(context);
                       },
                     child: new Text("OK"),

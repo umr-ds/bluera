@@ -34,7 +34,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
     setState(() {
       _isComposing = false;
     });
-    Message _msg = new Message(localUser, text, channel.name, DateTime.now().toUtc().millisecondsSinceEpoch.toString());
+    Message _msg = new Message(localUser, text, channel.name, DateTime.now().toUtc().millisecondsSinceEpoch.toString(), true);
     MessageItem messageItem = new MessageItem(
       message: _msg,
       animationController: new AnimationController(
@@ -63,9 +63,6 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
             onPressed: (){
               channels.remove(channel);
               notPartChannels.add(channel);
-              ChannelOverview _chnOvrview = getChannelOverviewFrom(channel.name, channelOverviews);
-              channelOverviews.remove(_chnOvrview);
-              notPartChannelOverviews.add(_chnOvrview);
               Navigator.pop(context);
             },
           ),

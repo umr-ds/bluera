@@ -27,8 +27,8 @@ class AddChannelDialogState extends State<AddChannelDialog> {
                 child: new ListView.separated(
                   separatorBuilder: (BuildContext context, int index) => Divider(),
                   itemBuilder: (BuildContext context, int index) =>
-                      AddChannelOverviewItem(notPartChannelOverviews[index]),
-                  itemCount: notPartChannelOverviews.length,
+                      AddChannelOverviewItem(notPartChannels[index]),
+                  itemCount: notPartChannels.length,
                 ),
               ),
               new Divider(color: Color(0xFF000000)),
@@ -46,9 +46,7 @@ class AddChannelDialogState extends State<AddChannelDialog> {
                       onPressed: () {
                         widget._channelNameField = _channelNameController.text;
                         Channel _chn = new Channel(widget._channelNameField, new List<Message>());
-                        ChannelOverview _ovrVew = new ChannelOverview(widget._channelNameField, "");
                         channels.add(_chn);
-                        channelOverviews.add(_ovrVew);
                         Navigator.pop(context);
                       },
                     child: new Text("Create"),

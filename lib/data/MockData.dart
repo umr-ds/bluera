@@ -1,35 +1,22 @@
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/data/User.dart';
 
-User localUser = new User("Distributed Systems", true);
-
-List<ChannelOverview> channelOverviews = <ChannelOverview>[
-  ChannelOverview("Announcements", "Keep Calm"),
-  ChannelOverview("Public Chat", "and use BlueRa")
-];
-
-List<ChannelOverview> notPartChannelOverviews = <ChannelOverview>[
-  ChannelOverview("Random", ""),
-  ChannelOverview("Help", ""),
-  ChannelOverview("Cool Stuff", "")
-];
-
-User other = new User("Verpeilte Systeme", false);
-User third = new User("Anon", false);
+String localUser = "Distributed Systems";
+String other = "Verpeilte Systeme";
+String third = "Anon";
 
 List<Message> announceMessages = <Message>[
-  Message(third, "Super", "Announcements", "1574689628"),
-  Message(localUser, "Unterwegs", "Announcements", "1574689728"),
-  Message(third, "Treffpunkt: Hof", "Announcements", "1574689828"),
-  Message(other, "Achtung Feuer", "Announcements", "1574689928"),
+  Message(third, "Super", "Announcements", "1574689628", false),
+  Message(localUser, "Unterwegs", "Announcements", "1574689728", true),
+  Message(third, "Treffpunkt: Hof", "Announcements", "1574689828", false),
+  Message(other, "Achtung Feuer", "Announcements", "1574689928", false),
 ];
 
 List<Message> publicMessages = <Message>[
-  Message(third, "toll", "Public Chat", "1574689628"),
-  Message(localUser, "Und ich erst.", "Public Chat", "1574689728"),
-  Message(third, "Finde ich auch.", "Public Chat", "1574689828"),
-  Message(other, "Ganz tolle Nachricht.", "Public Chat", "1574689928"),
+  Message(third, "toll", "Public Chat", "1574689628", false),
+  Message(localUser, "Und ich erst.", "Public Chat", "1574689728", true),
+  Message(third, "Finde ich auch.", "Public Chat", "1574689828", false),
+  Message(other, "Ganz tolle Nachricht.", "Public Chat", "1574689928", false),
 ];
 
 Channel announcements = Channel("Announcements", announceMessages);
@@ -61,16 +48,6 @@ Channel getChannel(String name) {
 }
 
 Channel getChannelFrom(String name, List<Channel> channelList) {
-  for (final chan in channelList) {
-    if (chan.name == name) {
-      return chan;
-    }
-  }
-
-  return null;
-}
-
-ChannelOverview getChannelOverviewFrom(String name, List<ChannelOverview> channelList) {
   for (final chan in channelList) {
     if (chan.name == name) {
       return chan;

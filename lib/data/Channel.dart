@@ -10,25 +10,17 @@ class Channel {
   final List<Message> messages;
 }
 
-class ChannelOverview {
-  ChannelOverview(this.name, this.lastMessage);
-
-  final String name;
-  final String lastMessage;
-}
-
 class ChannelOverviewItem extends StatelessWidget {
   const ChannelOverviewItem(this.chan, this.context);
 
-  final ChannelOverview chan;
+  final Channel chan;
   final BuildContext context;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      key: PageStorageKey<ChannelOverview>(chan),
+      key: PageStorageKey<Channel>(chan),
       title: Text(chan.name),
-      subtitle: Text(chan.lastMessage),
       trailing: Icon(Icons.arrow_forward_ios),
       onTap: () {
         Channel channel = getChannel(chan.name);
@@ -46,17 +38,15 @@ class ChannelOverviewItem extends StatelessWidget {
 class AddChannelOverviewItem extends StatelessWidget {
   const AddChannelOverviewItem(this.chan);
 
-  final ChannelOverview chan;
+  final Channel chan;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      key: PageStorageKey<ChannelOverview>(chan),
+      key: PageStorageKey<Channel>(chan),
       title: Text(chan.name),
       trailing: Icon(Icons.person_add),
       onTap: () {
-        notPartChannelOverviews.remove(chan);
-        channelOverviews.add(chan);
         Channel channel = getChannelFrom(chan.name, notPartChannels);
         notPartChannels.remove(channel);
         channels.add(channel);

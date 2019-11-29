@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:BlueRa/data/User.dart';
 
 class Message {
-  Message(this.user, this.text, this.channel, this.timestamp);
+  Message(this.user, this.text, this.channel, this.timestamp, this.isLocalUser);
 
-  final User user;
+  final String user;
   final String text;
   final String channel;
   final String timestamp;
+  final bool isLocalUser;
 }
 
 class MessageItem extends StatelessWidget {
@@ -19,13 +19,13 @@ class MessageItem extends StatelessWidget {
   List<Widget> buildMessageRow(BuildContext context) {
     DateTime timestamp = new DateTime.fromMillisecondsSinceEpoch(
         int.parse(message.timestamp) * 1000);
-    if (message.user.isLocalUser) {
+    if (message.isLocalUser) {
       return <Widget>[
         new Expanded(
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              new Text(timestamp.toIso8601String() + " " + message.user.name,
+              new Text(timestamp.toIso8601String() + " " + message.user,
                   style: Theme.of(context).textTheme.caption),
               new Container(
                 margin: const EdgeInsets.only(top: 5.0),
@@ -36,20 +36,20 @@ class MessageItem extends StatelessWidget {
         ),
         new Container(
           margin: const EdgeInsets.only(left: 16.0),
-          child: new CircleAvatar(child: new Text(message.user.name[0])),
+          child: new CircleAvatar(child: new Text('${message.user[0]}')),
         ),
       ];
     } else {
       return <Widget>[
         new Container(
           margin: const EdgeInsets.only(right: 16.0),
-          child: new CircleAvatar(child: new Text(message.user.name[0])),
+          child: new CircleAvatar(child: new Text('${message.user[0]}')),
         ),
         new Expanded(
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              new Text(message.user.name + " " + timestamp.toIso8601String(),
+              new Text(message.user + " " + timestamp.toIso8601String(),
                   style: Theme.of(context).textTheme.caption),
               new Container(
                 margin: const EdgeInsets.only(top: 5.0),

@@ -21,6 +21,8 @@ class RF95 {
   BluetoothCharacteristic _wCharac;
   BluetoothCharacteristic _rCharac;
 
+  List<int> readBuffer = <int>[];
+
   set writeCharacteristic(BluetoothCharacteristic characteristic) {
     this._wCharac = characteristic;
   }
@@ -29,22 +31,46 @@ class RF95 {
     return this._wCharac;
   }
 
+  void onData(List<int> data) {
+    if (data.last == "\n".codeUnits.first) {
+      readBuffer.addAll(data);
+      String completeMessage = decodeMessage(readBuffer);
+      readBuffer = <int>[];
+
+      handleRecvData(completeMessage);
+    } else {
+      readBuffer.addAll(data);
+    }
+  }
+
   set readCharacteristic(BluetoothCharacteristic characteristic) {
     this._rCharac = characteristic;
+    this._rCharac.setNotifyValue(true);
+
+    _rCharac.value.listen(onData);
   }
 
   BluetoothCharacteristic get readCharacteristic {
     return this._rCharac;
   }
 
-  List<int> preparedMessage(Message msg) {
-    final String completeMessage = msg.user.name + "|" + msg.channel + "|" + msg.timestamp + "|" + msg.text;
+  List<int> encodeMessage(Message msg) {
+    final String completeMessage = msg.user + "|" + msg.channel + "|" + msg.timestamp + "|" + msg.text;
     return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n").codeUnits;
   }
 
   Future send(Message msg) async {
     if (this.dev != null && this.writeCharacteristic != null) {
-      await _wCharac.write(this.preparedMessage(msg));
+      await _wCharac.write(this.encodeMessage(msg));
     }
   }
+
+  String decodeMessage(List<int> msg) {
+    String entireMessage = utf8.decode(msg).split(",")[1];
+
+    List<int> decodedHex = hex.decode(entireMessage);
+
+    return new String.fromCharCodes(decodedHex);
+  }
+
 }

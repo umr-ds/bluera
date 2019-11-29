@@ -43,8 +43,8 @@ class HomeScreen extends StatelessWidget {
       body: ListView.separated(
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemBuilder: (BuildContext context, int index) =>
-            ChannelOverviewItem(channelOverviews[index], context),
-        itemCount: channelOverviews.length,
+            ChannelOverviewItem(channels[index], context),
+        itemCount: channels.length,
       ),
     );
   }
