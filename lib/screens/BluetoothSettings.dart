@@ -33,19 +33,6 @@ class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
 }
 
 class BluetoothOnScreen extends StatelessWidget {
-  Text getConnectedDevice() {
-    StreamBuilder<List<BluetoothDevice>>(
-        stream: Stream.periodic(Duration(seconds: 2))
-            .asyncMap((_) => FlutterBlue.instance.connectedDevices),
-        initialData: [],
-        builder: (c, snapshot) {
-          return Text(snapshot.data[0].name,
-              style: TextStyle(color: Colors.white));
-        });
-
-    return Text("Not connected.", style: TextStyle(color: Colors.white));
-  }
-
   @override
   Widget build(BuildContext context) {
     return new Container(
@@ -146,17 +133,8 @@ class BluetoothScanScreen extends StatelessWidget {
   }
 }
 
-class ScanResultTile extends StatefulWidget {
+class ScanResultTile extends StatelessWidget {
   ScanResultTile(this.result);
-
-  final ScanResult result;
-
-  State createState() => new ScanResultTileState(result);
-}
-
-class ScanResultTileState extends State<ScanResultTile> {
-
-  ScanResultTileState(this.result);
 
   final ScanResult result;
 
@@ -186,19 +164,16 @@ class ScanResultTileState extends State<ScanResultTile> {
 
     List<BluetoothService> services = await device.discoverServices();
 
-    setState(() {
-      bluetoothDev = device;
+    bluetoothDev = device;
 
-      services.forEach((service) {
-        if (service.uuid == serviceUUID) {
-          for(BluetoothCharacteristic characteristic in service.characteristics) {
-            if (characteristic.uuid == writeCharacteristicUUID) {
-              print("Found characteristic!");
-              writeCharacteristic = characteristic;
-            }
+    services.forEach((service) {
+      if (service.uuid == serviceUUID) {
+        for(BluetoothCharacteristic characteristic in service.characteristics) {
+          if (characteristic.uuid == writeCharacteristicUUID) {
+            writeCharacteristic = characteristic;
           }
         }
-      });
+      }
     });
 
     Navigator.pop(context);
