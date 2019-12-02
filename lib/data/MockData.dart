@@ -1,5 +1,6 @@
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Message.dart';
+import 'package:flutter/material.dart';
 
 String localUser = "Distributed Systems";
 String other = "Verpeilte Systeme";
@@ -19,14 +20,14 @@ List<Message> publicMessages = <Message>[
   Message(other, "Ganz tolle Nachricht.", "Public Chat", "1574689928", false),
 ];
 
-Channel announcements = Channel("Announcements", announceMessages);
-Channel publics = Channel("Public Chat", publicMessages);
+ValueNotifier<Channel> announcements = ValueNotifier(Channel("Announcements", announceMessages));
+ValueNotifier<Channel> publics = ValueNotifier(Channel("Public Chat", publicMessages));
 
 Channel notPart1 = Channel("Random", new List<Message>());
 Channel notPart2 = Channel("Help", new List<Message>());
 Channel notPart3 = Channel("Cool Stuff", new List<Message>());
 
-List<Channel> channels = <Channel>[
+List<ValueNotifier<Channel>> channels = <ValueNotifier<Channel>>[
   announcements,
   publics
 ];
@@ -37,9 +38,9 @@ List<Channel> notPartChannels = <Channel>[
   notPart3
 ];
 
-Channel getChannel(String name) {
+ValueNotifier<Channel> getChannel(String name) {
   for (final chan in channels) {
-    if (chan.name == name) {
+    if (chan.value.name == name) {
       return chan;
     }
   }

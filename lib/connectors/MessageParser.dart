@@ -1,6 +1,7 @@
 import 'package:BlueRa/data/Message.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/MockData.dart';
+import 'package:flutter/material.dart';
 
   void handleRecvData(String completeMessage) {
     List<String> messageParts = completeMessage.split("|");
@@ -11,13 +12,12 @@ import 'package:BlueRa/data/MockData.dart';
     String msgString = messageParts[3];
 
     Message msg = Message(user, msgString, channelString, tsString, false);
-
-    Channel channel = getChannel(channelString);
+    ValueNotifier<Channel> channel = getChannel(channelString);
 
     if (channel == null) {
-      channel = Channel(channelString, []);
+      channel = ValueNotifier(Channel(channelString, []));
     }
 
-    channel.messages.insert(0, msg);
-
+    channel.value.messages.insert(0, msg);
+    channel.notifyListeners();
   }

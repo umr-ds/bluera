@@ -23,7 +23,7 @@ class ChannelOverviewItem extends StatelessWidget {
       title: Text(chan.name),
       trailing: Icon(Icons.arrow_forward_ios),
       onTap: () {
-        Channel channel = getChannel(chan.name);
+        ValueNotifier<Channel> channel = getChannel(chan.name);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -49,7 +49,7 @@ class AddChannelOverviewItem extends StatelessWidget {
       onTap: () {
         Channel channel = getChannelFrom(chan.name, notPartChannels);
         notPartChannels.remove(channel);
-        channels.add(channel);
+        channels.add(ValueNotifier(channel));
         Navigator.pop(context);
       },
     );

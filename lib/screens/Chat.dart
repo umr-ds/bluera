@@ -8,7 +8,7 @@ import 'package:BlueRa/connectors/RF95.dart';
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);
 
-  final Channel channel;
+  final ValueNotifier<Channel> channel;
 
   @override
   State createState() => new ChatScreenState(channel);
@@ -18,7 +18,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
 
   ChatScreenState(this.channel);
 
-  final Channel channel;
+  ValueNotifier<Channel> channel;
 
   final TextEditingController _textController = new TextEditingController();
 
@@ -34,7 +34,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
     setState(() {
       _isComposing = false;
     });
-    Message _msg = new Message(localUser, text, channel.name, DateTime.now().toUtc().millisecondsSinceEpoch.toString(), true);
+    Message _msg = new Message(localUser, text, channel.value.name, DateTime.now().toUtc().millisecondsSinceEpoch.toString(), true);
     MessageItem messageItem = new MessageItem(
       message: _msg,
       animationController: new AnimationController(
@@ -46,7 +46,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
     rf95.send(_msg);
 
     setState(() {
-      channel.messages.insert(0, _msg);
+      channel.value.messages.insert(0, _msg);
     });
     messageItem.animationController.forward();
   }
@@ -55,14 +55,14 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(channel.name),
+        title: new Text(channel.value.name),
         backgroundColor: Color(0xFF0A3D91),
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.open_in_new),
             onPressed: (){
               channels.remove(channel);
-              notPartChannels.add(channel);
+              notPartChannels.add(channel.value);
               Navigator.pop(context);
             },
           ),
@@ -71,23 +71,28 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
       body: new Column(
         children: <Widget>[
           new Flexible(
-            child: new ListView.builder(
-              padding: new EdgeInsets.all(8.0),
-              reverse: true,
-              itemBuilder: (_, int index) {
-                Message _msg = channel.messages[index];
-                MessageItem _msgItm = new MessageItem(
-                  message: _msg,
-                  animationController: new AnimationController(
-                    duration: new Duration(milliseconds: 100),
-                    vsync: this,
-                  ),
+            child: ValueListenableBuilder(
+              valueListenable: channel,
+              builder: (BuildContext context, Channel chan, Widget child) {
+                return ListView.builder(
+                  padding: new EdgeInsets.all(8.0),
+                  reverse: true,
+                  itemBuilder: (_, int index) {
+                    Message _msg = channel.value.messages[index];
+                    MessageItem _msgItm = new MessageItem(
+                      message: _msg,
+                      animationController: new AnimationController(
+                        duration: new Duration(milliseconds: 100),
+                        vsync: this,
+                      ),
+                    );
+                    _msgItm.animationController.forward();
+                    return _msgItm;
+                  },
+                  itemCount: channel.value.messages.length,
                 );
-                _msgItm.animationController.forward();
-                return _msgItm;
               },
-              itemCount: channel.messages.length,
-            ),
+            )
           ),
           new Divider(height: 1.0),
           new Container(

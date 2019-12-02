@@ -46,7 +46,7 @@ class AddChannelDialogState extends State<AddChannelDialog> {
                       onPressed: () {
                         widget._channelNameField = _channelNameController.text;
                         Channel _chn = new Channel(widget._channelNameField, new List<Message>());
-                        channels.add(_chn);
+                        channels.add(ValueNotifier(_chn));
                         Navigator.pop(context);
                       },
                     child: new Text("Create"),
