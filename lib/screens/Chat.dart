@@ -54,7 +54,21 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(channel.value.name),
+        centerTitle: true,
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              channel.value.name,
+              style: TextStyle(fontSize: 18.0),
+            ),
+            Text(
+              rf95.dev == null ? "Not Connected" : "Connected",
+              style: TextStyle(fontSize: 10.0),
+            )
+          ],
+        ),
         backgroundColor: Color(0xFF0A3D91),
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.open_in_new),
