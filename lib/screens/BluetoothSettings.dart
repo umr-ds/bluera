@@ -91,39 +91,39 @@ class BluetoothOnScreen extends StatelessWidget {
 class BluetoothScanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => {FlutterBlue.instance.startScan(timeout: Duration(seconds: 4))});
     return Scaffold(
       appBar: AppBar(
         title: Text('Scan'),
         backgroundColor: Color(0xFF0A3D91),
-        actions: <Widget>[
-          new IconButton(icon: new Icon(Icons.bluetooth_searching),
-            onPressed: () {
-              FlutterBlue.instance.startScan(timeout: Duration(seconds: 4));
-            },
-          ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: () =>
             FlutterBlue.instance.startScan(timeout: Duration(seconds: 4)),
         child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              StreamBuilder<List<ScanResult>>(
-                stream: FlutterBlue.instance.scanResults,
-                initialData: [],
-                builder: (c, snapshot) => Column(
-                  children: snapshot.data
-                      .map(
-                        (r) => ScanResultTile(r),
-                      )
-                      .toList(),
-                ),
-              ),
-            ],
+          physics: AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height
+            ),
+            child: Column(
+              children: <Widget>[
+                StreamBuilder<List<ScanResult>>(
+                  stream: FlutterBlue.instance.scanResults,
+                  initialData: [],
+                  builder: (c, snapshot) => Column(
+                    children: snapshot.data
+                        .map(
+                          (r) => ScanResultTile(r),
+                        )
+                        .toList(),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
-      ),
+      )
     );
   }
 }
