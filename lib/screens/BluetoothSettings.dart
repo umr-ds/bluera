@@ -31,6 +31,49 @@ class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
 }
 
 class BluetoothOnScreen extends StatelessWidget {
+
+  List<Widget> _defaultHint() {
+    return [ListTile(title: Text("Not Connected."))];
+  }
+
+  List<Widget> _connectedDevices(AsyncSnapshot<List<BluetoothDevice>> snapshot) {
+    return snapshot.data.map(
+      (d) => ListTile(
+        title: StreamBuilder<BluetoothDeviceState>(
+          stream: d.state,
+          initialData: BluetoothDeviceState.disconnected,
+          builder: (c, snapshot) {
+            return Text(d.name);
+            },
+          ),
+          trailing: FlatButton(
+            child: Text('Disconnect'),
+            onPressed: () async {
+              await d.disconnect();
+              rf95 = null;
+            },
+          ),
+        )
+      )
+    .toList();
+  }
+
+  List<Widget> _loadDevices(AsyncSnapshot<List<BluetoothDevice>> snapshot) {
+    return snapshot.data.isEmpty
+      ? [
+          ListTile(
+            title: Text("Loading devices..."),
+            trailing: CircularProgressIndicator()
+          )
+        ]
+      : _connectedDevices(snapshot);
+  }
+
+  Widget _connectedDevicesTiles(AsyncSnapshot<List<BluetoothDevice>> snapshot) {
+    return Column(
+      children: rf95 == null ? _defaultHint() : _loadDevices(snapshot)
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return new Container(
@@ -53,26 +96,7 @@ class BluetoothOnScreen extends StatelessWidget {
               stream: Stream.periodic(Duration(seconds: 2))
                   .asyncMap((_) => FlutterBlue.instance.connectedDevices),
               initialData: [],
-              builder: (c, snapshot) => Column(
-                children: snapshot.data
-                    .map((d) => ListTile(
-                          title: StreamBuilder<BluetoothDeviceState>(
-                            stream: d.state,
-                            initialData: BluetoothDeviceState.disconnected,
-                            builder: (c, snapshot) {
-                              return Text(d.name);
-                            },
-                          ),
-                          trailing: FlatButton(
-                            child: Text('Disconnect'),
-                            onPressed: () async {
-                              await d.disconnect();
-                              rf95 = null;
-                            },
-                          ),
-                        ))
-                    .toList(),
-              ),
+              builder: (c, snapshot) => _connectedDevicesTiles(snapshot)
             ),
             Divider(),
             ListTile(
