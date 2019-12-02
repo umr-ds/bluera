@@ -75,9 +75,6 @@ class BluetoothOnScreen extends StatelessWidget {
             ),
             Divider(),
             ListTile(
-              title: Text("Settings"),
-            ),
-            ListTile(
               title: Text("Scan for Devices"),
               onTap: () {
                 Navigator.push(
