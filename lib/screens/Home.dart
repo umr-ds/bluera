@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/MockData.dart';
 import 'package:BlueRa/screens/AddChannel.dart';
@@ -38,7 +37,6 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ],
-        elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
       ),
       body: ListView.separated(
         separatorBuilder: (BuildContext context, int index) => Divider(),

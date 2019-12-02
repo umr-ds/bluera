@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:BlueRa/data/MockData.dart';
 
 class UserSettingsScreen extends StatelessWidget {
@@ -10,8 +9,7 @@ class UserSettingsScreen extends StatelessWidget {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("User Settings"),
-        backgroundColor: Color(0xFF0A3D91),
-        elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
+        backgroundColor: Color(0xFF0A3D91)
       ),
       body: new Padding(
           child: new Column(

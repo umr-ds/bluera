@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:BlueRa/data/Message.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/MockData.dart';
@@ -57,7 +56,6 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
       appBar: new AppBar(
         title: new Text(channel.value.name),
         backgroundColor: Color(0xFF0A3D91),
-        elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.open_in_new),
             onPressed: (){
@@ -128,20 +126,13 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
             ),
             new Container(
               margin: new EdgeInsets.symmetric(horizontal: 4.0),
-              child: Theme.of(context).platform == TargetPlatform.iOS
-                  ? new CupertinoButton(
-                      child: new Text("Send"),
-                      onPressed: _isComposing
-                          ? () => _handleSubmitted(_textController.text)
-                          : null,
-                    )
-                  : new IconButton(
-                      color: Color(0xFF0A3D91),
-                      icon: new Icon(Icons.send),
-                      onPressed: _isComposing
-                          ? () => _handleSubmitted(_textController.text)
-                          : null,
-                    ),
+              child: new IconButton(
+                color: Color(0xFF0A3D91),
+                icon: new Icon(Icons.send),
+                onPressed: _isComposing
+                    ? () => _handleSubmitted(_textController.text)
+                    : null,
+              ),
             ),
           ],
         ),

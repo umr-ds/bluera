@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:BlueRa/connectors/RF95.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -16,7 +15,6 @@ class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
       appBar: new AppBar(
         title: new Text("Bluetooth Settings"),
         backgroundColor: Color(0xFF0A3D91),
-        elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
       ),
       body: StreamBuilder<BluetoothState>(
           stream: FlutterBlue.instance.state,
