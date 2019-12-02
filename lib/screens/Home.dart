@@ -24,14 +24,24 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
-          PopupMenuButton<Icon>(
+          PopupMenuButton<MenuButtonItem>(
             icon: Icon(Icons.more_horiz),
-            onSelected: (Icon result) => moreButtonAction(result, context),
+            onSelected: (MenuButtonItem result) => moreButtonAction(result, context),
             itemBuilder: (BuildContext context) {
-              return MoreButtonConstants.moreButtonItems.map((Icon choice) {
-                return PopupMenuItem<Icon>(
+              return MenuButtons.moreButtonItems.map((MenuButtonItem choice) {
+                return PopupMenuItem<MenuButtonItem>(
                   value: choice,
-                  child: choice,
+                  child: new Row(
+                    children: <Widget>[
+                      new Flexible(
+                        child: choice.buttonIcon
+                      ),
+                      new Container(
+                        margin: new EdgeInsets.only(left: 20.0),
+                        child: Text(choice.buttonDescription),
+                      ),
+                    ],
+                  ),
                 );
               }).toList();
             },
@@ -48,35 +58,42 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+class MenuButtonItem {
 
-class MoreButtonConstants {
-  static Icon userSettings = new Icon(Icons.perm_identity);
-  static Icon bluetoothSettings = new Icon(Icons.settings_bluetooth);
-  static Icon loraSettings = new Icon(Icons.settings_input_antenna);
+  MenuButtonItem(this.buttonIcon, this.buttonDescription);
 
-  static final List<Icon> moreButtonItems = [
+  final Icon buttonIcon;
+  final String buttonDescription;
+}
+
+class MenuButtons {
+  static MenuButtonItem userSettings = new MenuButtonItem(new Icon(Icons.perm_identity), "User Settings");
+  static MenuButtonItem bluetoothSettings = new MenuButtonItem(new Icon(Icons.settings_bluetooth), "Bluetooth Settings");
+  static MenuButtonItem loraSettings = new MenuButtonItem(new Icon(Icons.settings_input_antenna), "LoRa Settings");
+
+  static final List<MenuButtonItem> moreButtonItems = [
     userSettings,
     bluetoothSettings,
     loraSettings
   ];
 }
 
-void moreButtonAction(Icon choice, BuildContext context) {
-  if (choice == MoreButtonConstants.userSettings) {
+void moreButtonAction(MenuButtonItem choice, BuildContext context) {
+  if (choice == MenuButtons.userSettings) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => UserSettingsScreen(),
       ),
     );
-  } else if (choice == MoreButtonConstants.bluetoothSettings) {
+  } else if (choice == MenuButtons.bluetoothSettings) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BluetoothSettingsScreen(),
       ),
     );
-  } else if (choice == MoreButtonConstants.loraSettings) {
+  } else if (choice == MenuButtons.loraSettings) {
     Navigator.push(
       context,
       MaterialPageRoute(
