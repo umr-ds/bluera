@@ -49,6 +49,7 @@ class BluetoothOnScreen extends StatelessWidget {
           trailing: FlatButton(
             child: Text('Disconnect'),
             onPressed: () async {
+              await rf95.disconnect();
               await d.disconnect();
               rf95 = null;
             },

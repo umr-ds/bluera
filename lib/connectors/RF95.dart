@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_blue/flutter_blue.dart';
@@ -22,6 +23,8 @@ class RF95 {
   BluetoothCharacteristic _wCharac;
   BluetoothCharacteristic _rCharac;
 
+  StreamSubscription<dynamic> _sub;
+
   List<int> readBuffer = <int>[];
 
   set writeCharacteristic(BluetoothCharacteristic characteristic) {
@@ -32,11 +35,25 @@ class RF95 {
     return this._wCharac;
   }
 
+  Future disconnect() async {
+    this.readBuffer.clear();
+
+    this._wCharac = null;
+
+    this._rCharac.setNotifyValue(false);
+    this._rCharac.value.listen(null);
+    this._sub.cancel();
+    this._rCharac = null;
+
+    await this.dev.disconnect();
+    this.dev = null;
+  }
+
   void onData(List<int> data) {
     if (data.last == "\n".codeUnits.first) {
       readBuffer.addAll(data);
       String completeMessage = decodeMessage(readBuffer);
-      readBuffer = <int>[];
+      readBuffer.clear();
 
       handleRecvData(completeMessage);
     } else {
@@ -48,7 +65,7 @@ class RF95 {
     this._rCharac = characteristic;
     this._rCharac.setNotifyValue(true);
 
-    _rCharac.value.listen(onData);
+    this._sub = this._rCharac.value.listen(onData);
   }
 
   BluetoothCharacteristic get readCharacteristic {
