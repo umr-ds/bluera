@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Message {
   Message(this.user, this.text, this.channel, this.timestamp, this.isLocalUser);
@@ -17,15 +18,15 @@ class MessageItem extends StatelessWidget {
   final AnimationController animationController;
 
   List<Widget> buildMessageRow(BuildContext context) {
-    DateTime timestamp = new DateTime.fromMillisecondsSinceEpoch(
-        int.parse(message.timestamp) * 1000);
+    DateTime timestamp = new DateTime.fromMillisecondsSinceEpoch(int.parse(message.timestamp));
+    String dateTimeString = new DateFormat("hh:mm:ss (dd/MM/yy)").format(timestamp).toString();
     if (message.isLocalUser) {
       return <Widget>[
         new Expanded(
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              new Text(timestamp.toIso8601String() + " " + message.user,
+              new Text(dateTimeString + " | " + message.user,
                   style: Theme.of(context).textTheme.caption),
               new Container(
                 margin: const EdgeInsets.only(top: 5.0),
@@ -49,7 +50,7 @@ class MessageItem extends StatelessWidget {
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              new Text(message.user + " " + timestamp.toIso8601String(),
+              new Text(message.user + " | " + dateTimeString,
                   style: Theme.of(context).textTheme.caption),
               new Container(
                 margin: const EdgeInsets.only(top: 5.0),

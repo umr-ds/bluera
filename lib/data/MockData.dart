@@ -7,17 +7,17 @@ String other = "Verpeilte Systeme";
 String third = "Anon";
 
 List<Message> announceMessages = <Message>[
-  Message(third, "Super", "Announcements", "1574689628", false),
-  Message(localUser, "Unterwegs", "Announcements", "1574689728", true),
-  Message(third, "Treffpunkt: Hof", "Announcements", "1574689828", false),
-  Message(other, "Achtung Feuer", "Announcements", "1574689928", false),
+  Message(third, "Super", "Announcements", "1575282534640", false),
+  Message(localUser, "Unterwegs", "Announcements", "1575282554640", true),
+  Message(third, "Treffpunkt: Hof", "Announcements", "1575282564640", false),
+  Message(other, "Achtung Feuer", "Announcements", "1575282584640", false),
 ];
 
 List<Message> publicMessages = <Message>[
-  Message(third, "toll", "Public Chat", "1574689628", false),
-  Message(localUser, "Und ich erst.", "Public Chat", "1574689728", true),
-  Message(third, "Finde ich auch.", "Public Chat", "1574689828", false),
-  Message(other, "Ganz tolle Nachricht.", "Public Chat", "1574689928", false),
+  Message(third, "toll", "Public Chat", "1575282534640", false),
+  Message(localUser, "Und ich erst.", "Public Chat", "1575282554640", true),
+  Message(third, "Finde ich auch.", "Public Chat", "1575282564640", false),
+  Message(other, "Ganz tolle Nachricht.", "Public Chat", "1575282584640", false),
 ];
 
 ValueNotifier<Channel> announcements = ValueNotifier(Channel("Announcements", announceMessages));

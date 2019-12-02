@@ -19,7 +19,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-    
+  intl: 0.16.0
+
   # building flutter_blue on iOS fails due to a bug, which can be manually patched, see https://github.com/pauldemarco/flutter_blue/issues/386
   flutter_blue: 0.6.3+1
 
