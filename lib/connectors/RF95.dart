@@ -26,6 +26,7 @@ class RF95 {
   StreamSubscription<dynamic> _sub;
 
   List<int> readBuffer = <int>[];
+  bool readBufferFilling = false;
 
   set writeCharacteristic(BluetoothCharacteristic characteristic) {
     this._wCharac = characteristic;
@@ -50,10 +51,17 @@ class RF95 {
   }
 
   void onData(List<int> data) {
-    if (data.last == "\n".codeUnits.first) {
+    if (!readBufferFilling) {
+      if (data.isNotEmpty && utf8.decode(data.getRange(0, 3).toList()) == "+RX") {
+        readBufferFilling = true;
+      }
+    }
+
+    if (readBufferFilling && data.last == "\n".codeUnits.first) {
       readBuffer.addAll(data);
       String completeMessage = decodeMessage(readBuffer);
       readBuffer.clear();
+      readBufferFilling = false;
 
       handleRecvData(completeMessage);
     } else {
