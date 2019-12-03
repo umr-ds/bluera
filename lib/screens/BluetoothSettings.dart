@@ -46,6 +46,7 @@ class BluetoothOffScreenState extends State<BluetoothOnScreen> {
   List<Widget> _connectedDevice() {
     return [ListTile(
       title: Text(rf95.dev.name),
+      subtitle: Text(rf95.dev.id.toString()),
       trailing: FlatButton(
         child: Text("Disconnect"),
         onPressed: () async {
