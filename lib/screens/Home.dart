@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:BlueRa/data/Channel.dart';
-import 'package:BlueRa/data/MockData.dart';
+import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/screens/AddChannel.dart';
 import 'package:BlueRa/screens/UserSettings.dart';
 import 'package:BlueRa/screens/BluetoothSettings.dart';
-import 'package:BlueRa/screens/LoraSettings.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -51,10 +50,12 @@ class HomeScreen extends StatelessWidget {
       body: ValueListenableBuilder(
         valueListenable: channels,
         builder: (BuildContext context, List<ValueNotifier<Channel>> channels, Widget child) {
+          var localChannels = channels.where((channel) => channel.value.attending == true).toList();
           return ListView.builder(
-            itemBuilder: (BuildContext context, int index) =>
-                ChannelOverviewItem(channels[index].value, context),
-            itemCount: channels.length,
+            itemBuilder: (BuildContext context, int index) {
+                return ChannelOverviewItem(localChannels[index].value, context);
+            },
+            itemCount: localChannels.length,
           );
         },
       )

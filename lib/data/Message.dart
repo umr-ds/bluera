@@ -9,6 +9,24 @@ class Message {
   final String channel;
   final String timestamp;
   final bool isLocalUser;
+
+  Map<String, dynamic> toJson() => {
+    '"user"': '"' + user + '"',
+    '"text"': '"' + text + '"',
+    '"channel"': '"' + channel + '"',
+    '"timestamp"': '"' + timestamp + '"',
+    '"isLocalUser"': '"' + isLocalUser.toString() + '"'
+  };
+
+  static Message fromJson(Map<String, dynamic> model) {
+    return new Message(
+      model["user"],
+      model["text"],
+      model["channel"],
+      model["timestamp"],
+      model["isLocalUser"].toLowerCase() == "true",
+    );
+  }
 }
 
 class MessageItem extends StatelessWidget {

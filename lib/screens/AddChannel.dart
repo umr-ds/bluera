@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:BlueRa/data/MockData.dart';
+import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Message.dart';
+import 'package:BlueRa/connectors/Database.dart';
 
 class AddChannelDialog extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class AddChannelDialog extends StatefulWidget {
 
 class AddChannelDialogState extends State<AddChannelDialog> {
   TextEditingController _channelNameController = new TextEditingController();
+  final DBConnector dbHelper = DBConnector.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +24,18 @@ class AddChannelDialogState extends State<AddChannelDialog> {
           child: new Column(
             children: <Widget>[
               new Flexible(
-                child: new ListView.separated(
-                  separatorBuilder: (BuildContext context, int index) => Divider(),
-                  itemBuilder: (BuildContext context, int index) =>
-                      AddChannelOverviewItem(notPartChannels.value[index].value),
-                  itemCount: notPartChannels.value.length,
-                ),
+                child: ValueListenableBuilder(
+                  valueListenable: channels,
+                  builder: (BuildContext context, List<ValueNotifier<Channel>> channels, Widget child) {
+                    var localChannels = channels.where((channel) => channel.value.attending == false).toList();
+                    return ListView.builder(
+                      itemBuilder: (BuildContext context, int index) {
+                          return AddChannelOverviewItem(localChannels[index].value);
+                      },
+                      itemCount: localChannels.length,
+                    );
+                  },
+                )
               ),
               new Divider(color: Color(0xFF000000)),
               new TextField(
@@ -42,7 +50,9 @@ class AddChannelDialogState extends State<AddChannelDialog> {
                   new Expanded(
                     child: new RaisedButton(
                       onPressed: () {
-                        ValueNotifier<Channel> _chn = ValueNotifier(Channel(_channelNameController.text, new List<Message>()));
+                        Channel tmpChannel = Channel(_channelNameController.text, true, new List<Message>());
+                        dbHelper.insert(tmpChannel.toMap());
+                        ValueNotifier<Channel> _chn = ValueNotifier(tmpChannel);
                         channels.value.add(_chn);
                         channels.notifyListeners();
                         Navigator.pop(context);

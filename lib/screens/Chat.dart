@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:BlueRa/data/Message.dart';
 import 'package:BlueRa/data/Channel.dart';
-import 'package:BlueRa/data/MockData.dart';
+import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/connectors/RF95.dart';
+import 'package:BlueRa/connectors/Database.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);
@@ -22,6 +23,8 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
   final TextEditingController _textController = new TextEditingController();
 
   bool _isComposing = false;
+
+  final DBConnector dbHelper = DBConnector.instance;
 
   @override
   void dispose() {
@@ -46,6 +49,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
 
     setState(() {
       channel.value.messages.insert(0, _msg);
+      dbHelper.update(channel.value.toMap());
     });
     messageItem.animationController.forward();
   }
@@ -73,10 +77,9 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.open_in_new),
             onPressed: (){
-              channels.value.remove(channel);
-              notPartChannels.value.add(channel);
+              channel.value.attending = false;
+              dbHelper.update(channel.value.toMap());
               channels.notifyListeners();
-              notPartChannels.notifyListeners();
               Navigator.pop(context);
             },
           ),

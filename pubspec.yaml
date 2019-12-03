@@ -20,6 +20,8 @@ dependencies:
   flutter:
     sdk: flutter
   intl: 0.16.0
+  sqflite: 1.1.7+3
+  path_provider: 1.4.5
 
   # building flutter_blue on iOS fails due to a bug, which can be manually patched, see https://github.com/pauldemarco/flutter_blue/issues/386
   flutter_blue: 0.6.3+1
