@@ -30,49 +30,37 @@ class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
   }
 }
 
-class BluetoothOnScreen extends StatelessWidget {
+class BluetoothOnScreen extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => BluetoothOffScreenState();
+
+}
+
+class BluetoothOffScreenState extends State<BluetoothOnScreen> {
+  bool isConnected = false;
 
   List<Widget> _defaultHint() {
     return [ListTile(title: Text("Not Connected."))];
   }
 
-  List<Widget> _connectedDevices(AsyncSnapshot<List<BluetoothDevice>> snapshot) {
-    return snapshot.data.map(
-      (d) => ListTile(
-        title: StreamBuilder<BluetoothDeviceState>(
-          stream: d.state,
-          initialData: BluetoothDeviceState.disconnected,
-          builder: (c, snapshot) {
-            return Text(d.name);
-            },
-          ),
-          trailing: FlatButton(
-            child: Text('Disconnect'),
-            onPressed: () async {
-              await rf95.disconnect();
-              await d.disconnect();
-              rf95 = null;
-            },
-          ),
-        )
+  List<Widget> _connectedDevice() {
+    return [ListTile(
+      title: Text(rf95.dev.name),
+      trailing: FlatButton(
+        child: Text("Disconnect"),
+        onPressed: () async {
+          await rf95.disconnect();
+          rf95 = null;
+          setState(() => isConnected = false);
+        }
       )
-    .toList();
+    )];
   }
 
-  List<Widget> _loadDevices(AsyncSnapshot<List<BluetoothDevice>> snapshot) {
-    return snapshot.data.isEmpty
-      ? [
-          ListTile(
-            title: Text("Loading devices..."),
-            trailing: CircularProgressIndicator()
-          )
-        ]
-      : _connectedDevices(snapshot);
-  }
-
-  Widget _connectedDevicesTiles(AsyncSnapshot<List<BluetoothDevice>> snapshot) {
+  Widget _connectedDevicesTile() {
+    setState(() => isConnected = rf95 == null ? false : true);
     return Column(
-      children: rf95 == null ? _defaultHint() : _loadDevices(snapshot)
+      children: rf95 == null ? _defaultHint() : _connectedDevice()
     );
   }
   @override
@@ -93,12 +81,7 @@ class BluetoothOnScreen extends StatelessWidget {
             ListTile(
               title: Text("Conected Devices:"),
             ),
-            StreamBuilder<List<BluetoothDevice>>(
-              stream: Stream.periodic(Duration(seconds: 2))
-                  .asyncMap((_) => FlutterBlue.instance.connectedDevices),
-              initialData: [],
-              builder: (c, snapshot) => _connectedDevicesTiles(snapshot)
-            ),
+            _connectedDevicesTile(),
             Divider(),
             ListTile(
               title: Text("Scan for Devices"),
