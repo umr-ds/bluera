@@ -23,23 +23,27 @@ List<Message> publicMessages = <Message>[
 ValueNotifier<Channel> announcements = ValueNotifier(Channel("Announcements", announceMessages));
 ValueNotifier<Channel> publics = ValueNotifier(Channel("Public Chat", publicMessages));
 
-Channel notPart1 = Channel("Random", new List<Message>());
-Channel notPart2 = Channel("Help", new List<Message>());
-Channel notPart3 = Channel("Cool Stuff", new List<Message>());
+ValueNotifier<Channel> notPart1 = ValueNotifier(Channel("Random", new List<Message>()));
+ValueNotifier<Channel> notPart2 = ValueNotifier(Channel("Help", new List<Message>()));
+ValueNotifier<Channel> notPart3 = ValueNotifier(Channel("Cool Stuff", new List<Message>()));
 
-List<ValueNotifier<Channel>> channels = <ValueNotifier<Channel>>[
-  announcements,
-  publics
-];
+ValueNotifier<List<ValueNotifier<Channel>>> channels = new ValueNotifier<List<ValueNotifier<Channel>>>(
+  <ValueNotifier<Channel>>[
+    announcements,
+    publics
+  ]
+);
 
-List<Channel> notPartChannels = <Channel>[
-  notPart1,
-  notPart2,
-  notPart3
-];
+ValueNotifier<List<ValueNotifier<Channel>>> notPartChannels = new ValueNotifier<List<ValueNotifier<Channel>>>(
+  <ValueNotifier<Channel>>[
+    notPart1,
+    notPart2,
+    notPart3
+  ]
+);
 
 ValueNotifier<Channel> getChannel(String name) {
-  for (final chan in channels) {
+  for (final chan in channels.value) {
     if (chan.value.name == name) {
       return chan;
     }
@@ -48,9 +52,9 @@ ValueNotifier<Channel> getChannel(String name) {
   return null;
 }
 
-Channel getChannelFrom(String name, List<Channel> channelList) {
-  for (final chan in channelList) {
-    if (chan.name == name) {
+ValueNotifier<Channel> getChannelFrom(String name, ValueNotifier<List<ValueNotifier<Channel>>> channelList) {
+  for (final chan in channelList.value) {
+    if (chan.value.name == name) {
       return chan;
     }
   }

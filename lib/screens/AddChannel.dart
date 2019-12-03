@@ -4,8 +4,6 @@ import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Message.dart';
 
 class AddChannelDialog extends StatefulWidget {
-  String _channelNameField = "";
-
   @override
   AddChannelDialogState createState() => new AddChannelDialogState();
 }
@@ -27,8 +25,8 @@ class AddChannelDialogState extends State<AddChannelDialog> {
                 child: new ListView.separated(
                   separatorBuilder: (BuildContext context, int index) => Divider(),
                   itemBuilder: (BuildContext context, int index) =>
-                      AddChannelOverviewItem(notPartChannels[index]),
-                  itemCount: notPartChannels.length,
+                      AddChannelOverviewItem(notPartChannels.value[index].value),
+                  itemCount: notPartChannels.value.length,
                 ),
               ),
               new Divider(color: Color(0xFF000000)),
@@ -44,9 +42,9 @@ class AddChannelDialogState extends State<AddChannelDialog> {
                   new Expanded(
                     child: new RaisedButton(
                       onPressed: () {
-                        widget._channelNameField = _channelNameController.text;
-                        Channel _chn = new Channel(widget._channelNameField, new List<Message>());
-                        channels.add(ValueNotifier(_chn));
+                        ValueNotifier<Channel> _chn = ValueNotifier(Channel(_channelNameController.text, new List<Message>()));
+                        channels.value.add(_chn);
+                        channels.notifyListeners();
                         Navigator.pop(context);
                       },
                     child: new Text("Create"),

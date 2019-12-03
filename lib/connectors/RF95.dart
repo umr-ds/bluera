@@ -32,21 +32,21 @@ class RF95 {
   }
 
   BluetoothCharacteristic get writeCharacteristic {
-    return this._wCharac;
+    return _wCharac;
   }
 
   Future disconnect() async {
-    this.readBuffer.clear();
+    readBuffer.clear();
 
-    this._wCharac = null;
+    _wCharac = null;
 
-    this._rCharac.setNotifyValue(false);
-    this._rCharac.value.listen(null);
-    this._sub.cancel();
-    this._rCharac = null;
+    _rCharac.setNotifyValue(false);
+    _rCharac.value.listen(null);
+    _sub.cancel();
+    _rCharac = null;
 
-    await this.dev.disconnect();
-    this.dev = null;
+    await dev.disconnect();
+    dev = null;
   }
 
   void onData(List<int> data) {
@@ -62,14 +62,14 @@ class RF95 {
   }
 
   set readCharacteristic(BluetoothCharacteristic characteristic) {
-    this._rCharac = characteristic;
-    this._rCharac.setNotifyValue(true);
+    _rCharac = characteristic;
+    _rCharac.setNotifyValue(true);
 
-    this._sub = this._rCharac.value.listen(onData);
+    _sub = _rCharac.value.listen(onData);
   }
 
   BluetoothCharacteristic get readCharacteristic {
-    return this._rCharac;
+    return _rCharac;
   }
 
   List<int> encodeMessage(Message msg) {
@@ -78,7 +78,7 @@ class RF95 {
   }
 
   Future send(Message msg) async {
-    if (this.dev != null && this.writeCharacteristic != null) {
+    if (dev != null && this.writeCharacteristic != null) {
       await _wCharac.write(this.encodeMessage(msg));
     }
   }

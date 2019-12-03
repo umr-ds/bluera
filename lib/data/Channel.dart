@@ -47,9 +47,11 @@ class AddChannelOverviewItem extends StatelessWidget {
       title: Text(chan.name),
       trailing: Icon(Icons.person_add),
       onTap: () {
-        Channel channel = getChannelFrom(chan.name, notPartChannels);
-        notPartChannels.remove(channel);
-        channels.add(ValueNotifier(channel));
+        ValueNotifier<Channel> channel = getChannelFrom(chan.name, notPartChannels);
+        notPartChannels.value.remove(channel);
+        channels.value.add(channel);
+        channels.notifyListeners();
+        notPartChannels.notifyListeners();
         Navigator.pop(context);
       },
     );

@@ -64,7 +64,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
               style: TextStyle(fontSize: 18.0),
             ),
             Text(
-              rf95.dev == null ? "Not Connected" : "Connected",
+              rf95 == null ? "Not Connected" : "Connected",
               style: TextStyle(fontSize: 10.0),
             )
           ],
@@ -73,8 +73,10 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.open_in_new),
             onPressed: (){
-              channels.remove(channel);
-              notPartChannels.add(channel.value);
+              channels.value.remove(channel);
+              notPartChannels.value.add(channel);
+              channels.notifyListeners();
+              notPartChannels.notifyListeners();
               Navigator.pop(context);
             },
           ),
@@ -143,7 +145,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
               child: new IconButton(
                 color: Color(0xFF0A3D91),
                 icon: new Icon(Icons.send),
-                onPressed: _isComposing
+                onPressed: (_isComposing && rf95 != null)
                     ? () => _handleSubmitted(_textController.text)
                     : null,
               ),

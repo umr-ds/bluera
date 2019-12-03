@@ -119,7 +119,7 @@ class BluetoothOnScreen extends StatelessWidget {
 class BluetoothScanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) => {FlutterBlue.instance.startScan(timeout: Duration(seconds: 4))});
+    WidgetsBinding.instance.addPostFrameCallback((_) {FlutterBlue.instance.startScan(timeout: Duration(seconds: 4));});
     return Scaffold(
       appBar: AppBar(
         title: Text('Scan'),

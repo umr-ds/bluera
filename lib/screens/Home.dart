@@ -48,12 +48,16 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.separated(
-        separatorBuilder: (BuildContext context, int index) => Divider(),
-        itemBuilder: (BuildContext context, int index) =>
-            ChannelOverviewItem(channels[index].value, context),
-        itemCount: channels.length,
-      ),
+      body: ValueListenableBuilder(
+        valueListenable: channels,
+        builder: (BuildContext context, List<ValueNotifier<Channel>> channels, Widget child) {
+          return ListView.builder(
+            itemBuilder: (BuildContext context, int index) =>
+                ChannelOverviewItem(channels[index].value, context),
+            itemCount: channels.length,
+          );
+        },
+      )
     );
   }
 }
