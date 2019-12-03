@@ -23,8 +23,11 @@ class BlueRa extends StatelessWidget {
         bool attending = row[DBConnector.columnAttending].toLowerCase() == "true";
         Iterable jsonObjects = json.decode(messagesJson);
         List<Message> messages = jsonObjects.map((item) => Message.fromJson(item)).toList();
-        Channel _chn = Channel(channelName, attending, messages);
-        channels.value.add(ValueNotifier<Channel>(_chn));
+        ValueNotifier<Channel> _chn = ValueNotifier<Channel>(Channel(channelName, attending, messages));
+        if (Channel.getChannel(_chn.value.name) != null) {
+          continue;
+        }
+        channels.value.add(_chn);
         channels.notifyListeners();
       }
     });
