@@ -4,6 +4,7 @@ import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/screens/AddChannel.dart';
 import 'package:BlueRa/screens/UserSettings.dart';
 import 'package:BlueRa/screens/BluetoothSettings.dart';
+import 'package:BlueRa/screens/LoraSettings.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -74,10 +75,12 @@ class MenuButtonItem {
 class MenuButtons {
   static MenuButtonItem userSettings = new MenuButtonItem(new Icon(Icons.perm_identity), "User Settings");
   static MenuButtonItem bluetoothSettings = new MenuButtonItem(new Icon(Icons.settings_bluetooth), "Bluetooth Settings");
+  static MenuButtonItem loraSettings = new MenuButtonItem(new Icon(Icons.settings_input_antenna), "LoRa Settings");
 
   static final List<MenuButtonItem> moreButtonItems = [
     userSettings,
     bluetoothSettings,
+    loraSettings
   ];
 }
 
@@ -96,5 +99,12 @@ void moreButtonAction(MenuButtonItem choice, BuildContext context) {
         builder: (context) => BluetoothSettingsScreen(),
       ),
     );
+  } else if (choice == MenuButtons.loraSettings) {
+     Navigator.push(
+       context,
+       MaterialPageRoute(
+         builder: (context) => LoraSettingsScreen(),
+       ),
+     );
   }
 }

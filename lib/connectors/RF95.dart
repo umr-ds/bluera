@@ -12,6 +12,7 @@ Guid writeCharacteristicUUID = new Guid("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
 Guid readCharacteristicUUID = new Guid("6E400003-B5A3-F393-E0A9-E50E24DCCA9E");
 
 String sendCommand = "AT+TX=";
+String modeCommand = "AT+MODE=";
 
 RF95 rf95;
 
@@ -99,4 +100,10 @@ class RF95 {
     return new String.fromCharCodes(decodedHex);
   }
 
+  void setMode(String mode) async {
+    if (dev != null && this.writeCharacteristic != null) {
+      List<int> cmd = (modeCommand + mode + '\n').codeUnits;
+      await _wCharac.write(cmd);
+    }
+  }
 }
