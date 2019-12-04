@@ -38,9 +38,34 @@ class BluetoothOnScreen extends StatefulWidget {
 
 class BluetoothOffScreenState extends State<BluetoothOnScreen> {
   bool isConnected = false;
+  bool searching = false;
 
   List<Widget> _defaultHint() {
-    return [ListTile(title: Text("Not Connected."))];
+    searching = true;
+    FlutterBlue.instance.connectedDevices.then((devices) {
+      for (BluetoothDevice device in devices) {
+        device.discoverServices().then((services) {
+          services.forEach((service) {
+            if (service.uuid == serviceUUID) {
+              rf95 = RF95(device);
+              setState(() => isConnected = true);
+              for(BluetoothCharacteristic characteristic in service.characteristics) {
+                if (characteristic.uuid == writeCharacteristicUUID) {
+                  rf95.writeCharacteristic = characteristic;
+                }
+
+                if (characteristic.uuid == readCharacteristicUUID) {
+                  rf95.readCharacteristic = characteristic;
+                }
+              }
+            }
+          });
+        });
+      }
+    });
+
+    searching = false;
+    return rf95 == null ? [ListTile(title: Text("Not Connected."))] : _connectedDevice();
   }
 
   List<Widget> _connectedDevice() {
@@ -81,6 +106,7 @@ class BluetoothOffScreenState extends State<BluetoothOnScreen> {
             ),
             ListTile(
               title: Text("Conected Devices:"),
+              trailing: (!isConnected && searching) ? const CircularProgressIndicator() : Text("")
             ),
             _connectedDevicesTile(),
             Divider(),
@@ -166,8 +192,7 @@ class ScanResultTile extends StatelessWidget {
     }
   }
 
-  void _connectAndReturn(BluetoothDevice device, BuildContext context) async {
-    await device.connect();
+  void _connect(BluetoothDevice device) async {
     rf95 = RF95(device);
 
     List<BluetoothService> services = await device.discoverServices();
@@ -185,7 +210,11 @@ class ScanResultTile extends StatelessWidget {
         }
       }
     });
+  }
 
+  void _connectAndReturn(BluetoothDevice device, BuildContext context) async {
+    await device.connect();
+    _connect(device);
     Navigator.pop(context);
   }
 
