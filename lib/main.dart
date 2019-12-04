@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:BlueRa/screens/Home.dart';
 import 'package:BlueRa/connectors/Database.dart';
+import 'package:BlueRa/connectors/Username.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Message.dart';
 import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/screens/BluetoothSettings.dart';
+import 'package:BlueRa/screens/UserSettings.dart';
 
 void main() {
   runApp(new BlueRa());
@@ -14,9 +16,12 @@ void main() {
 
 class BlueRa extends StatelessWidget {
   final DBConnector dbHelper = DBConnector.instance;
+
   @override
   Widget build(BuildContext context) {
     BluetoothOffScreenState.reconnect();
+
+    UsernameConnector.read();
 
     dbHelper.queryAllRows().then((rows) {
       for (Map<String, dynamic> row in rows) {
@@ -35,7 +40,7 @@ class BlueRa extends StatelessWidget {
     });
     return new MaterialApp(
       title: "BlueRa",
-      home: new HomeScreen(),
+      home: localUser == null ? UserSettingsScreen() : HomeScreen(),
     );
   }
 }
