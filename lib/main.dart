@@ -6,6 +6,7 @@ import 'package:BlueRa/connectors/Database.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Message.dart';
 import 'package:BlueRa/data/Globals.dart';
+import 'package:BlueRa/screens/BluetoothSettings.dart';
 
 void main() {
   runApp(new BlueRa());
@@ -15,6 +16,7 @@ class BlueRa extends StatelessWidget {
   final DBConnector dbHelper = DBConnector.instance;
   @override
   Widget build(BuildContext context) {
+    BluetoothOffScreenState.reconnect();
 
     dbHelper.queryAllRows().then((rows) {
       for (Map<String, dynamic> row in rows) {

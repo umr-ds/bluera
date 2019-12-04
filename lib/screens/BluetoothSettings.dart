@@ -40,15 +40,13 @@ class BluetoothOffScreenState extends State<BluetoothOnScreen> {
   bool isConnected = false;
   bool searching = false;
 
-  List<Widget> _defaultHint() {
-    searching = true;
+  static void reconnect(){
     FlutterBlue.instance.connectedDevices.then((devices) {
       for (BluetoothDevice device in devices) {
         device.discoverServices().then((services) {
           services.forEach((service) {
             if (service.uuid == serviceUUID) {
               rf95 = RF95(device);
-              setState(() => isConnected = true);
               for(BluetoothCharacteristic characteristic in service.characteristics) {
                 if (characteristic.uuid == writeCharacteristicUUID) {
                   rf95.writeCharacteristic = characteristic;
@@ -63,9 +61,16 @@ class BluetoothOffScreenState extends State<BluetoothOnScreen> {
         });
       }
     });
+  }
+
+  List<Widget> _defaultHint() {
+    searching = true;
+
+    reconnect();
 
     searching = false;
-    return rf95 == null ? [ListTile(title: Text("Not Connected."))] : _connectedDevice();
+    setState(() => isConnected = rf95 == null);
+    return isConnected ? [ListTile(title: Text("Not Connected."))] : _connectedDevice();
   }
 
   List<Widget> _connectedDevice() {
