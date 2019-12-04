@@ -88,10 +88,6 @@ The intended behaviour is to persist the local user. This seems to be broken as 
 
 While it is possible to change the LoRa mode of the modem to one of the four possible options, there is currently no way to tell which mode is currently used.
 
-TODO: limitations (see issues, )
-
-
-
 
 
 
