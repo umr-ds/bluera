@@ -28,7 +28,7 @@ class UserSettingsScreenState extends State<UserSettingsScreen> {
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: localUser == null ? "Enter Username" : localUser,
-                  errorText: _valid ? 'Please enter Username' : null,
+                  errorText: _valid ? "Username must not be empty and must not contain '|'" : null,
                 ),
               ),
               new Row(
@@ -37,7 +37,9 @@ class UserSettingsScreenState extends State<UserSettingsScreen> {
                     child: new RaisedButton(
                       onPressed: () {
                         setState(() {
-                          _userNameController.text.isEmpty ? _valid = false : _valid = true;
+                          bool notEmpty = _userNameController.text.isNotEmpty;
+                          bool validChars = !(_userNameController.text.contains("|"));
+                          (notEmpty && validChars) ? _valid = true : _valid = false;
                         });
                         if (_valid) {
                           localUser = _userNameController.text;

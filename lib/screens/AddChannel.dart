@@ -12,6 +12,7 @@ class AddChannelDialog extends StatefulWidget {
 class AddChannelDialogState extends State<AddChannelDialog> {
   TextEditingController _channelNameController = new TextEditingController();
   final DBConnector dbHelper = DBConnector.instance;
+  bool _valid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +43,8 @@ class AddChannelDialogState extends State<AddChannelDialog> {
                 controller: _channelNameController,
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText: 'Create new channel'
+                  hintText: 'Create new channel',
+                  errorText: _valid ? "Channel name must not be empty and must not contain '|'" : null,
                 ),
               ),
               new Row(
@@ -50,12 +52,19 @@ class AddChannelDialogState extends State<AddChannelDialog> {
                   new Expanded(
                     child: new RaisedButton(
                       onPressed: () {
-                        Channel tmpChannel = Channel(_channelNameController.text, true, new List<Message>());
-                        dbHelper.insert(tmpChannel.toMap());
-                        ValueNotifier<Channel> _chn = ValueNotifier(tmpChannel);
-                        channels.value.add(_chn);
-                        channels.notifyListeners();
-                        Navigator.pop(context);
+                        setState(() {
+                          bool notEmpty = _channelNameController.text.isNotEmpty;
+                          bool validChars = !(_channelNameController.text.contains("|"));
+                          (notEmpty && validChars) ? _valid = true : _valid = false;
+                        });
+                        if (_valid) {
+                          Channel tmpChannel = Channel(_channelNameController.text, true, new List<Message>());
+                          dbHelper.insert(tmpChannel.toMap());
+                          ValueNotifier<Channel> _chn = ValueNotifier(tmpChannel);
+                          channels.value.add(_chn);
+                          channels.notifyListeners();
+                          Navigator.pop(context);
+                        }
                       },
                     child: new Text("Create"),
                   ))
