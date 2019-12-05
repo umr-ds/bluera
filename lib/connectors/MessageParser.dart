@@ -10,12 +10,17 @@ import 'package:flutter/material.dart';
 
     String channelString = messageParts[0];
     String user = messageParts[1];
-
     String msgString = messageParts.sublist(3).join("|");
+
+    List<String> lonLatStringList = messageParts[2].split(",");
+    UserLocation _location = UserLocation(
+      longitude: double.parse(lonLatStringList[0]),
+      latitude: double.parse(lonLatStringList[1])
+    );
 
     String tsString = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
 
-    Message msg = Message(user, msgString, channelString, tsString, false);
+    Message msg = Message(user, msgString, channelString, tsString, false, _location);
     ValueNotifier<Channel> channel = Channel.getChannel(channelString);
 
     if (channel == null) {

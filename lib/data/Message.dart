@@ -2,29 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Message {
-  Message(this.user, this.text, this.channel, this.timestamp, this.isLocalUser);
+  Message(this.user, this.text, this.channel, this.timestamp, this.isLocalUser, this.location);
 
   final String user;
   final String text;
   final String channel;
   final String timestamp;
   final bool isLocalUser;
+  final UserLocation location;
 
   Map<String, dynamic> toJson() => {
     '"user"': '"' + user + '"',
     '"text"': '"' + text + '"',
     '"channel"': '"' + channel + '"',
     '"timestamp"': '"' + timestamp + '"',
-    '"isLocalUser"': '"' + isLocalUser.toString() + '"'
+    '"isLocalUser"': '"' + isLocalUser.toString() + '"',
+    '"location"': '"' + location.longitude.toString() + "," + location.latitude.toString() + '"'
   };
 
   static Message fromJson(Map<String, dynamic> model) {
+    List<String> lonLatStringList = model["location"].split(",");
+    UserLocation _location = UserLocation(
+      longitude: double.parse(lonLatStringList[0]),
+      latitude: double.parse(lonLatStringList[1])
+    );
+
     return new Message(
       model["user"],
       model["text"],
       model["channel"],
       model["timestamp"],
       model["isLocalUser"].toLowerCase() == "true",
+      _location
     );
   }
 }
@@ -95,4 +104,11 @@ class MessageItem extends StatelessWidget {
           ),
         ));
   }
+}
+
+class UserLocation {
+  final double latitude;
+  final double longitude;
+
+  UserLocation({this.latitude, this.longitude});
 }

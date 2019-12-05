@@ -4,6 +4,9 @@ import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/connectors/RF95.dart';
 import 'package:BlueRa/connectors/Database.dart';
+import 'package:location/location.dart';
+import 'package:provider/provider.dart';
+import 'package:BlueRa/connectors/Location.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);
@@ -25,6 +28,7 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
   bool _isComposing = false;
 
   final DBConnector dbHelper = DBConnector.instance;
+  var location = Location();
 
   @override
   void dispose() {
@@ -36,7 +40,8 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
     setState(() {
       _isComposing = false;
     });
-    Message _msg = new Message(localUser, text, channel.value.name, DateTime.now().toUtc().millisecondsSinceEpoch.toString(), true);
+
+    Message _msg = new Message(localUser, text, channel.value.name, DateTime.now().toUtc().millisecondsSinceEpoch.toString(), true, currentLocation);
     MessageItem messageItem = new MessageItem(
       message: _msg,
       animationController: new AnimationController(
@@ -56,7 +61,8 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    UserLocationStream().locationService();
+    return Scaffold(
       appBar: new AppBar(
         centerTitle: true,
         title: Column(

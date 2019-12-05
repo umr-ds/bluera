@@ -82,7 +82,8 @@ class RF95 {
   }
 
   List<int> encodeMessage(Message msg) {
-    final String completeMessage = msg.channel + "|" + msg.user + "|" + msg.timestamp + "|" + msg.text;
+    String location = msg.location.longitude.toString() + "," + msg.location.latitude.toString();
+    final String completeMessage = msg.channel + "|" + msg.user + "|" + location + "|" + msg.text;
     return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n").codeUnits;
   }
 
