@@ -25,9 +25,9 @@ class BlueRa extends StatelessWidget {
 
     dbHelper.queryAllRows().then((rows) {
       for (Map<String, dynamic> row in rows) {
-        String messagesJson = row[DBConnector.columnMessages];
         String channelName = row[DBConnector.columnName];
         bool attending = row[DBConnector.columnAttending].toLowerCase() == "true";
+        String messagesJson = row[DBConnector.columnMessages];
         Iterable jsonObjects = json.decode(messagesJson);
         List<Message> messages = jsonObjects.map((item) => Message.fromJson(item)).toList();
         ValueNotifier<Channel> _chn = ValueNotifier<Channel>(Channel(channelName, attending, messages));

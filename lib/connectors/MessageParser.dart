@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
     final DBConnector dbHelper = DBConnector.instance;
     List<String> messageParts = completeMessage.split("|");
 
-    String user = messageParts[0];
-    String channelString = messageParts[1];
-    String tsString = messageParts[2];
-    String msgString = messageParts[3];
+    String channelString = messageParts[0];
+    String user = messageParts[1];
+
+    String msgString = messageParts.sublist(3).join("|");
+
+    String tsString = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
 
     Message msg = Message(user, msgString, channelString, tsString, false);
     ValueNotifier<Channel> channel = Channel.getChannel(channelString);

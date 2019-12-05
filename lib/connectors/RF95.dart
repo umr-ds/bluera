@@ -82,7 +82,7 @@ class RF95 {
   }
 
   List<int> encodeMessage(Message msg) {
-    final String completeMessage = msg.user + "|" + msg.channel + "|" + msg.timestamp + "|" + msg.text;
+    final String completeMessage = msg.channel + "|" + msg.user + "|" + msg.timestamp + "|" + msg.text;
     return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n").codeUnits;
   }
 
