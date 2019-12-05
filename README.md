@@ -74,7 +74,9 @@ The protocol definition below follows the [Augmented Backus-Naur Form](https://e
 message  = channel "|" username "|" [location] | VCHAR
 channel  = id
 username = id
-location = float "," float
+location = lon "," lat
+lon      = float
+lat      = float
 float    = 1*DIGIT+ ["." 1*DIGIT]
 id       = 1*(VCHAR \ "|"))   ;Any printable character excluding the |
 ```
