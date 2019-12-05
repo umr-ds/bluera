@@ -1,3 +1,5 @@
+### Custom ###
+*.db
 
 # Created by https://www.gitignore.io/api/dart,linux,xcode,macos,flutter,android,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=dart,linux,xcode,macos,flutter,android,visualstudiocode
