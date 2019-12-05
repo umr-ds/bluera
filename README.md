@@ -62,6 +62,25 @@ By chosing "LoRa Settings" in the home screen, you can select one of four modes.
 
 If you attend at least one channel, they will be shown on the home screen. Tap on a channel and you will be able to send messages to this channel. Note, that you have to be connected to a modem for chatting. The connection state is shown in the app bar on the top of the screen. By tapping the leave button in the top right corner of the chat screen, you can leave a channel.
 
+
+
+## Message Protocol
+
+BlueRa uses a rather simple message protocol for sending and receiving messages. If you have an app or tool compliant to this protocol, you should be able to exchange messages with Bluera.
+
+The protocol definition below follows the [Augmented Backus-Naur Form](https://en.wikipedia.org/wiki/Augmented_Backus–Naur_form).
+
+```
+message  = channel "|" username "|" [location] | VCHAR
+channel  = id
+username = id
+location = float "," float
+float    = 1*DIGIT+ ["." 1*DIGIT]
+id       = 1*(VCHAR \ "|"))   ;Any printable character excluding the |
+```
+
+
+
 ## Knwon Issues
 
 ### Modem State Management
