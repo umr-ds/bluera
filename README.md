@@ -1,6 +1,6 @@
 # BlueRa
 
-BlueRa is a simple cross-platform app for connecting to a RF95 modem using Bluetooth and use the serial interface to chat over LoRa.
+BlueRa is a simple cross-platform app for connecting to a [RF95 modem](https://github.com/gh0st42/rf95modem) using Bluetooth and use the serial interface to chat over LoRa.
 
 ## Getting Started
 
@@ -16,7 +16,7 @@ After that, continue with the following steps.
 
 #### iOS
 
-If you want to built BlueRa for iOS, you have to launch the  `Runner.xcworkspace` in Xcode, select the Runner target and provide your Team ID under the Signing section to make sure, that Flutter uses the correct Signing identity. After that is done, you can close Xcode and proceed.
+If you want to built BlueRa for iOS, you have to launch the  `Runner.xcworkspace` in Xcode, select the runner target and provide your Team ID under the signing section to make sure, that Flutter uses the correct signing identity. After that is done, you can close Xcode and proceed.
 
 
 
@@ -48,7 +48,7 @@ You can also change your username by tapping the dots in the home screen and sel
 
 ### Connect to Modem
 
-In the top right corner, tap on the dots and select "Bluetooth Settings". Here, you have to connect to a RF95 Modem. Scan for available devices and connect to the found RF95 Modem.
+In the top right corner, tap on the dots and select "Bluetooth Settings". Here, you have to connect to a RF95 modem. Scan for available devices and connect to the found RF95 Modem.
 
 ### Add and Join Channels
 
@@ -71,7 +71,7 @@ BlueRa uses a rather simple message protocol for sending and receiving messages.
 The protocol definition below follows the [Augmented Backus-Naur Form](https://en.wikipedia.org/wiki/Augmented_Backus–Naur_form).
 
 ```
-message  = channel "|" username "|" [location] | VCHAR
+message  = channel "|" username "|" [location] "|" VCHAR
 channel  = id
 username = id
 location = lon "," lat
@@ -83,15 +83,15 @@ id       = 1*(VCHAR \ "|"))   ;Any printable character excluding the |
 
 
 
-## Knwon Issues
+## Known Issues
 
 ### Modem State Management
 
-The connection state is somewhat whacky. If you encounter some problems with messages not or multiple times appearing, try to reconnect. I can also be helful to restart both, the app and the modem.
+The connection state is somewhat whacky. If you encounter some problems with messages not or multiple times appearing, try to reconnect. It can also be helful to restart both, the app and the modem.
 
 ### User Management
 
-The intended behaviour is to persist the local user. This seems to be broken as of now. It is possible that the app will ask you again for a user name for some reason.
+The intended behaviour is to persist the local user. This seems to be broken as of now. It is possible that the app will ask you again for a username for some reason.
 
 ### LoRa Settings
 
