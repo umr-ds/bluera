@@ -9,7 +9,11 @@ class UserLocationStream {
   StreamController<UserLocation> _locationController = StreamController<UserLocation>();
   Stream<UserLocation> get locationStream => _locationController.stream;
 
-  void locationService() {
+  void locationService() async {
+    bool locationPermission = await location.hasPermission();
+    if (!locationPermission) {
+      location.requestPermission();
+    }
     location.onLocationChanged().listen((locationData) {
       if (locationData != null) {
         currentLocation = UserLocation(
