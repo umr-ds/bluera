@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:BlueRa/data/Globals.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:convert/convert.dart';
 
 import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/connectors/MessageParser.dart';
 
 Guid serviceUUID = new Guid("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 Guid writeCharacteristicUUID = new Guid("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -53,18 +53,28 @@ class RF95 {
 
   void onData(List<int> data) {
     if (!readBufferFilling) {
-      if (data.isNotEmpty && utf8.decode(data.getRange(0, 3).toList()) == "+RX") {
+      if (data.isNotEmpty &&
+          utf8.decode(data.getRange(0, 3).toList()) == "+RX") {
         readBufferFilling = true;
       }
     }
 
     if (readBufferFilling && data.last == "\n".codeUnits.first) {
       readBuffer.addAll(data);
-      String completeMessage = decodeMessage(readBuffer);
+
+      List<String> readBufferList = utf8.decode(readBuffer).split(",");
+      List<int> decodedHex = hex.decode(readBufferList[0]);
+      String completeMessage = new String.fromCharCodes(decodedHex);
+
+      Message msg = Message.parse(
+        completeMessage,
+        int.parse(readBufferList[1]),
+        int.parse(readBufferList[2]),
+      );
+      databaseProvider.saveMessage(msg);
+
       readBuffer.clear();
       readBufferFilling = false;
-
-      handleRecvData(completeMessage);
     } else {
       readBuffer.addAll(data);
     }
@@ -82,23 +92,17 @@ class RF95 {
   }
 
   List<int> encodeMessage(Message msg) {
-    String location = msg.location.longitude.toString() + "," + msg.location.latitude.toString();
-    final String completeMessage = msg.channel + "|" + msg.user + "|" + location + "|" + msg.text;
-    return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n").codeUnits;
+    String location = msg.lat.toString() + "," + msg.lon.toString();
+    final String completeMessage =
+        msg.channel + "|" + msg.user + "|" + location + "|" + msg.text;
+    return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n")
+        .codeUnits;
   }
 
   Future send(Message msg) async {
     if (dev != null && this.writeCharacteristic != null) {
       await _wCharac.write(this.encodeMessage(msg));
     }
-  }
-
-  String decodeMessage(List<int> msg) {
-    String entireMessage = utf8.decode(msg).split(",")[1];
-
-    List<int> decodedHex = hex.decode(entireMessage);
-
-    return new String.fromCharCodes(decodedHex);
   }
 
   void setMode(String mode) async {

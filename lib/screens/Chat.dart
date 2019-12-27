@@ -1,33 +1,50 @@
+import 'package:BlueRa/data/Message.g.m8.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:BlueRa/data/Message.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/connectors/RF95.dart';
-import 'package:BlueRa/connectors/Database.dart';
 import 'package:location/location.dart';
-import 'package:provider/provider.dart';
 import 'package:BlueRa/connectors/Location.dart';
+import 'package:BlueRa/screens/MessageItem.dart';
+import 'package:BlueRa/main.adapter.g.m8.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);
-
-  final ValueNotifier<Channel> channel;
+  final Channel channel;
 
   @override
   State createState() => new ChatScreenState(channel);
 }
 
-class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
-
+class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   ChatScreenState(this.channel);
 
-  ValueNotifier<Channel> channel;
+  final Channel channel;
+  Future<List<MessageProxy>> messageList;
+
+  Future<List<MessageProxy>> getMessageProxies() async {
+    var dbClient = await databaseProvider.db;
+    var result = await dbClient.query(
+      databaseProvider.theMessageTableHandler,
+      columns: databaseProvider.theMessageColumns,
+      where: "channel = '?'",
+      whereArgs: [channel.name],
+    );
+
+    return result.map((e) => MessageProxy.fromMap(e)).toList();
+  }
+
+  void updateMessages() {
+    messageList = getMessageProxies();
+  }
 
   final TextEditingController _textController = new TextEditingController();
 
   bool _isComposing = false;
 
-  final DBConnector dbHelper = DBConnector.instance;
   var location = Location();
 
   @override
@@ -41,7 +58,13 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
       _isComposing = false;
     });
 
-    Message _msg = new Message(localUser, text, channel.value.name, DateTime.now().toUtc().millisecondsSinceEpoch.toString(), true, currentLocation);
+    MessageProxy _msg = MessageProxy(
+      user: localUser,
+      text: text,
+      channel: channel.name,
+      timestamp_ms: DateTime.now().toUtc().millisecondsSinceEpoch,
+      mine: true,
+    );
     MessageItem messageItem = new MessageItem(
       message: _msg,
       animationController: new AnimationController(
@@ -50,18 +73,19 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
       ),
     );
 
+    databaseProvider.saveMessage(_msg);
     rf95.send(_msg);
 
     setState(() {
-      channel.value.messages.insert(0, _msg);
-      dbHelper.update(channel.value.toMap());
+      // TODO: Update msg list
+      // channel.value.messages.insert(0, _msg);
+      // dbHelper.update(channel.value.toMap());
     });
     messageItem.animationController.forward();
   }
 
   @override
   Widget build(BuildContext context) {
-    UserLocationStream().locationService();
     return Scaffold(
       appBar: new AppBar(
         centerTitle: true,
@@ -70,10 +94,11 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              channel.value.name,
+              channel.name,
               style: TextStyle(fontSize: 18.0),
             ),
             Text(
+              // TODO: Fix state according to real BT connection
               rf95 == null ? "Not Connected" : "Connected",
               style: TextStyle(fontSize: 10.0),
             )
@@ -81,11 +106,11 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
         ),
         backgroundColor: Color(0xFF0A3D91),
         actions: <Widget>[
-          new IconButton(icon: new Icon(Icons.open_in_new),
-            onPressed: (){
-              channel.value.attending = false;
-              dbHelper.update(channel.value.toMap());
-              channels.notifyListeners();
+          new IconButton(
+            icon: new Icon(Icons.open_in_new),
+            onPressed: () {
+              channel.attending = false;
+              databaseProvider.updateChannel(channel);
               Navigator.pop(context);
             },
           ),
@@ -94,29 +119,30 @@ class ChatScreenState extends State<ChatScreen>  with TickerProviderStateMixin{
       body: new Column(
         children: <Widget>[
           new Flexible(
-            child: ValueListenableBuilder(
-              valueListenable: channel,
-              builder: (BuildContext context, Channel chan, Widget child) {
-                return ListView.builder(
-                  padding: new EdgeInsets.all(8.0),
-                  reverse: true,
-                  itemBuilder: (_, int index) {
-                    Message _msg = channel.value.messages[index];
-                    MessageItem _msgItm = new MessageItem(
-                      message: _msg,
-                      animationController: new AnimationController(
-                        duration: new Duration(milliseconds: 100),
-                        vsync: this,
-                      ),
-                    );
-                    _msgItm.animationController.forward();
-                    return _msgItm;
-                  },
-                  itemCount: channel.value.messages.length,
-                );
-              },
-            )
-          ),
+              child: ValueListenableBuilder(
+            valueListenable: channelUpdated,
+            builder: (BuildContext context, _, Widget child) {
+              FutureBuilder<List<MessageProxy>>(
+                future: this.messageList,
+                initialData: [],
+                builder: (context, snapshot) => Column(
+                  children: snapshot.data.map(
+                    (msg) {
+                      MessageItem _msgItm = MessageItem(
+                        message: msg,
+                        animationController: new AnimationController(
+                          duration: new Duration(milliseconds: 100),
+                          vsync: this,
+                        ),
+                      );
+                      _msgItm.animationController.forward();
+                      return _msgItm;
+                    },
+                  ).toList(),
+                ),
+              );
+            },
+          )),
           new Divider(height: 1.0),
           new Container(
             decoration: new BoxDecoration(color: Theme.of(context).cardColor),

@@ -1,114 +1,67 @@
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:f_orm_m8/f_orm_m8.dart';
+import 'package:sqflite/sqflite.dart';
+import 'dart:async';
 
-class Message {
-  Message(this.user, this.text, this.channel, this.timestamp, this.isLocalUser, this.location);
+import 'package:BlueRa/data/Message.g.m8.dart';
 
-  final String user;
-  final String text;
-  final String channel;
-  final String timestamp;
-  final bool isLocalUser;
-  final UserLocation location;
+@DataTable("messages")
+class Message implements DbEntity {
+  @DataColumn("id",
+      metadataLevel: ColumnMetadata.primaryKey |
+          ColumnMetadata.unique |
+          ColumnMetadata.autoIncrement)
+  int id;
 
-  Map<String, dynamic> toJson() => {
-    '"user"': '"' + user + '"',
-    '"text"': '"' + text + '"',
-    '"channel"': '"' + channel + '"',
-    '"timestamp"': '"' + timestamp + '"',
-    '"isLocalUser"': '"' + isLocalUser.toString() + '"',
-    '"location"': '"' + location.longitude.toString() + "," + location.latitude.toString() + '"'
-  };
+  // on-air message parts
+  @DataColumn("channel", metadataLevel: ColumnMetadata.notNull)
+  String channel;
+  @DataColumn("user", metadataLevel: ColumnMetadata.notNull)
+  String user;
+  @DataColumn("lat")
+  double lat;
+  @DataColumn("lon")
+  double lon;
+  @DataColumn("text", metadataLevel: ColumnMetadata.notNull)
+  String text;
 
-  static Message fromJson(Map<String, dynamic> model) {
-    List<String> lonLatStringList = model["location"].split(",");
-    UserLocation _location = UserLocation(
-      longitude: double.parse(lonLatStringList[0]),
-      latitude: double.parse(lonLatStringList[1])
-    );
+  // meta data
+  @DataColumn("timestamp", metadataLevel: ColumnMetadata.notNull)
+  int timestamp_ms;
+  @DataColumn("mine", metadataLevel: ColumnMetadata.notNull)
+  bool mine;
+  @DataColumn("rssi")
+  int rssi;
+  @DataColumn("snr")
+  int snr;
 
-    return new Message(
-      model["user"],
-      model["text"],
-      model["channel"],
-      model["timestamp"],
-      model["isLocalUser"].toLowerCase() == "true",
-      _location
-    );
-  }
-}
+  Message();
 
-class MessageItem extends StatelessWidget {
-  MessageItem({this.message, this.animationController});
+  Message.parse(String completeMessage, int rssi, int snr) {
+    List<String> messageParts = completeMessage.split("|");
 
-  final Message message;
-  final AnimationController animationController;
+    this.channel = messageParts[0];
+    this.user = messageParts[1];
 
-  List<Widget> buildMessageRow(BuildContext context) {
-    DateTime timestamp = new DateTime.fromMillisecondsSinceEpoch(int.parse(message.timestamp));
-    String dateTimeString = new DateFormat("hh:mm:ss (dd/MM/yy)").format(timestamp).toString();
-    if (message.isLocalUser) {
-      return <Widget>[
-        new Expanded(
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              new Text(dateTimeString + " | " + message.user,
-                  style: Theme.of(context).textTheme.caption),
-              new Container(
-                margin: const EdgeInsets.only(top: 5.0),
-                child: new Text(message.text),
-              ),
-            ],
-          ),
-        ),
-        new Container(
-          margin: const EdgeInsets.only(left: 16.0),
-          child: new CircleAvatar(child: new Text('${message.user[0]}')),
-        ),
-      ];
-    } else {
-      return <Widget>[
-        new Container(
-          margin: const EdgeInsets.only(right: 16.0),
-          child: new CircleAvatar(child: new Text('${message.user[0]}')),
-        ),
-        new Expanded(
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              new Text(message.user + " | " + dateTimeString,
-                  style: Theme.of(context).textTheme.caption),
-              new Container(
-                margin: const EdgeInsets.only(top: 5.0),
-                child: new Text(message.text),
-              ),
-            ],
-          ),
-        ),
-      ];
+    if (messageParts.length == 0) {
+      List<String> lonLatStringList = messageParts[2].split(",");
+      this.lat = double.parse(lonLatStringList[1]);
+      this.lon = double.parse(lonLatStringList[0]);
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return new SizeTransition(
-        sizeFactor: new CurvedAnimation(
-            parent: animationController, curve: Curves.easeOut),
-        axisAlignment: 0.0,
-        child: new Container(
-          margin: const EdgeInsets.symmetric(vertical: 10.0),
-          child: new Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: buildMessageRow(context),
-          ),
-        ));
+    this.text = messageParts.sublist(3).join("|");
+    this.timestamp_ms = DateTime.now().toUtc().millisecondsSinceEpoch;
+    this.mine = false;
+    this.rssi = rssi;
+    this.snr = snr;
   }
 }
 
-class UserLocation {
-  final double latitude;
-  final double longitude;
+mixin MessageDatabaseQuery on MessageDatabaseProvider {
+  Future<List<MessageProxy>> getMessageProxiesWhere(String where) async {
+    var dbClient = await db;
+    var result = await dbClient.query(theMessageTableHandler,
+        columns: theMessageColumns, where: where);
 
-  UserLocation({this.latitude, this.longitude});
+    return result.map((e) => MessageProxy.fromMap(e)).toList();
+  }
 }

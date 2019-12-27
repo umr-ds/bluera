@@ -1,86 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:BlueRa/screens/Chat.dart';
-import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/data/Globals.dart';
-import 'package:BlueRa/connectors/Database.dart';
+import 'package:BlueRa/data/Message.g.m8.dart';
+import 'package:BlueRa/main.adapter.g.m8.dart';
+import 'package:f_orm_m8/f_orm_m8.dart';
 
-class Channel {
-  Channel(this.name, this.attending, this.messages);
+@DataTable("channels")
+class Channel implements DbEntity {
+  @DataColumn("id",
+      metadataLevel: ColumnMetadata.unique |
+          ColumnMetadata.autoIncrement |
+          ColumnMetadata.primaryKey)
+  int id;
 
+  @DataColumn("name", metadataLevel: ColumnMetadata.notNull)
   String name;
+
+  @DataColumn("attending", metadataLevel: ColumnMetadata.notNull)
   bool attending;
-  List<Message> messages;
-
-  Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'attending': attending.toString(),
-      'messages': encondeToJson(messages),
-    };
-  }
-
-  static String encondeToJson(List<Message> messages){
-    List jsonList = List();
-    messages.map((item) => jsonList.add(item.toJson())).toList();
-    return jsonList.toString();
-  }
-
-  static ValueNotifier<Channel> getChannel(String name) {
-    for (final chan in channels.value) {
-      if (chan.value.name == name) {
-        return chan;
-      }
-    }
-
-    return null;
-  }
-}
-
-class ChannelOverviewItem extends StatelessWidget {
-  const ChannelOverviewItem(this.chan, this.context);
-
-  final Channel chan;
-  final BuildContext context;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      key: PageStorageKey<Channel>(chan),
-      title: Text(chan.name),
-      trailing: Icon(Icons.arrow_forward_ios),
-      onTap: () {
-        ValueNotifier<Channel> channel = Channel.getChannel(chan.name);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(channel),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class AddChannelOverviewItem extends StatelessWidget {
-  AddChannelOverviewItem(this.chan);
-
-  final Channel chan;
-
-  final DBConnector dbHelper = DBConnector.instance;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      key: PageStorageKey<Channel>(chan),
-      title: Text(chan.name),
-      trailing: Icon(Icons.person_add),
-      onTap: () {
-        ValueNotifier<Channel> channel = Channel.getChannel(chan.name);
-        channel.value.attending = true;
-        dbHelper.update(channel.value.toMap());
-        channels.notifyListeners();
-        Navigator.pop(context);
-      },
-    );
-  }
 }

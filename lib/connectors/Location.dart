@@ -1,13 +1,13 @@
-import 'package:location/location.dart';
 import 'dart:async';
-import 'package:BlueRa/data/Message.dart';
+import 'package:location/location.dart';
 import 'package:BlueRa/data/Globals.dart';
 
 class UserLocationStream {
   Location location = new Location();
 
-  StreamController<UserLocation> _locationController = StreamController<UserLocation>();
-  Stream<UserLocation> get locationStream => _locationController.stream;
+  StreamController<LocationData> _locationController =
+      StreamController<LocationData>();
+  Stream<LocationData> get locationStream => _locationController.stream;
 
   void locationService() async {
     bool locationPermission = await location.hasPermission();
@@ -16,10 +16,7 @@ class UserLocationStream {
     }
     location.onLocationChanged().listen((locationData) {
       if (locationData != null) {
-        currentLocation = UserLocation(
-          latitude: locationData.latitude,
-          longitude: locationData.longitude
-        );
+        currentLocation = locationData;
       }
     });
   }

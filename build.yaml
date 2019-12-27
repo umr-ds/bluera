@@ -1,0 +1,8 @@
+targets:
+  $default:
+    builders:
+      f_orm_m8_sqlite|orm_m8:
+        generate_for:
+          - lib/main.dart
+          - lib/data/Message.dart
+          - lib/data/Channel.dart
