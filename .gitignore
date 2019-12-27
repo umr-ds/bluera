@@ -256,3 +256,6 @@ DerivedData/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # End of https://www.gitignore.io/api/dart,linux,xcode,macos,flutter,android,visualstudiocode
+.flutter-plugins-dependencies
+.idea/
+.metadata

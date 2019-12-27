@@ -2,8 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Connect to the RF95 Modem Service using Bluetooth.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Connect to a rf95modem.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Send your location in LoRa messages.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Add you location to received LoRa messages.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -43,7 +47,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app requires access to your location.</string>
 </dict>
 </plist>
