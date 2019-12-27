@@ -1,5 +1,3 @@
-import 'package:BlueRa/data/Message.g.m8.dart';
-import 'package:BlueRa/main.adapter.g.m8.dart';
 import 'package:f_orm_m8/f_orm_m8.dart';
 
 @DataTable("channels")

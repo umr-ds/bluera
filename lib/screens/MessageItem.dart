@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'package:BlueRa/data/Message.dart';
 
 class MessageItem extends StatelessWidget {

@@ -5,10 +5,8 @@ import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/screens/AddChannel.dart';
 import 'package:BlueRa/screens/UserSettings.dart';
 import 'package:BlueRa/screens/BluetoothSettings.dart';
-import 'package:BlueRa/screens/ChannelItems.dart';
 import 'package:BlueRa/screens/LoraSettings.dart';
 import 'package:BlueRa/screens/Chat.dart';
-import 'package:BlueRa/main.adapter.g.m8.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -103,7 +101,6 @@ class ChannelOverviewItem extends StatelessWidget {
       title: Text(channel.name),
       trailing: Icon(Icons.arrow_forward_ios),
       onTap: () {
-        // ValueNotifier<Channel> channel = Channel.getChannel(chan.name);
         Navigator.push(
           context,
           MaterialPageRoute(

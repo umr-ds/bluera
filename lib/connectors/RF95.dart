@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:BlueRa/data/Globals.dart';
+import 'package:BlueRa/data/Message.g.m8.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:convert/convert.dart';
 
 import 'package:BlueRa/data/Message.dart';
 
@@ -62,19 +62,20 @@ class RF95 {
     if (readBufferFilling && data.last == "\n".codeUnits.first) {
       readBuffer.addAll(data);
 
-      List<String> readBufferList = utf8.decode(readBuffer).split(",");
-      List<int> decodedHex = hex.decode(readBufferList[0]);
-      String completeMessage = new String.fromCharCodes(decodedHex);
-
-      Message msg = Message.parse(
-        completeMessage,
-        int.parse(readBufferList[1]),
-        int.parse(readBufferList[2]),
-      );
-      databaseProvider.saveMessage(msg);
-
+      String readBufferString = utf8.decode(readBuffer);
       readBuffer.clear();
       readBufferFilling = false;
+
+      List<String> readBufferList = readBufferString.split(",");
+      print(readBufferList);
+
+      MessageProxy msg = MessageProxyConstructor.fromHex(
+        readBufferList[1],
+        int.parse(readBufferList[2]),
+        int.parse(readBufferList[3]),
+      );
+      databaseProvider.saveMessage(msg);
+      recvNotifier.notifyListeners();
     } else {
       readBuffer.addAll(data);
     }
@@ -91,17 +92,10 @@ class RF95 {
     return _rCharac;
   }
 
-  List<int> encodeMessage(Message msg) {
-    String location = msg.lat.toString() + "," + msg.lon.toString();
-    final String completeMessage =
-        msg.channel + "|" + msg.user + "|" + location + "|" + msg.text;
-    return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n")
-        .codeUnits;
-  }
-
   Future send(Message msg) async {
     if (dev != null && this.writeCharacteristic != null) {
-      await _wCharac.write(this.encodeMessage(msg));
+      List<int> btBytes = (sendCommand + msg.toHex() + "\n").codeUnits;
+      await _wCharac.write(btBytes);
     }
   }
 

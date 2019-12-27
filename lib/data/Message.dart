@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'package:f_orm_m8/f_orm_m8.dart';
-import 'package:sqflite/sqflite.dart';
-import 'dart:async';
+import 'package:convert/convert.dart';
 
 import 'package:BlueRa/data/Message.g.m8.dart';
 
@@ -34,34 +34,41 @@ class Message implements DbEntity {
   @DataColumn("snr")
   int snr;
 
-  Message();
-
-  Message.parse(String completeMessage, int rssi, int snr) {
-    List<String> messageParts = completeMessage.split("|");
-
-    this.channel = messageParts[0];
-    this.user = messageParts[1];
-
-    if (messageParts.length == 0) {
-      List<String> lonLatStringList = messageParts[2].split(",");
-      this.lat = double.parse(lonLatStringList[1]);
-      this.lon = double.parse(lonLatStringList[0]);
+  String toHex() {
+    String location = "";
+    if ((this.lat != null) && (this.lon != null)) {
+      location = this.lat.toString() + "," + this.lon.toString();
     }
 
-    this.text = messageParts.sublist(3).join("|");
-    this.timestamp_ms = DateTime.now().toUtc().millisecondsSinceEpoch;
-    this.mine = false;
-    this.rssi = rssi;
-    this.snr = snr;
+    final String completeMessage =
+        this.channel + "|" + this.user + "|" + location + "|" + this.text;
+    return hex.encode(utf8.encode(completeMessage)) + "\n";
   }
 }
 
-mixin MessageDatabaseQuery on MessageDatabaseProvider {
-  Future<List<MessageProxy>> getMessageProxiesWhere(String where) async {
-    var dbClient = await db;
-    var result = await dbClient.query(theMessageTableHandler,
-        columns: theMessageColumns, where: where);
+mixin MessageProxyConstructor on MessageProxy {
+  static MessageProxy fromHex(String hexBuffer, int rssi, int snr) {
+    List<int> decodedHex = hex.decode(hexBuffer);
+    String completeMessage = new String.fromCharCodes(decodedHex);
+    List<String> messageParts = completeMessage.split("|");
 
-    return result.map((e) => MessageProxy.fromMap(e)).toList();
+    MessageProxy msg = new MessageProxy(
+      channel: messageParts[0],
+      user: messageParts[1],
+      text: messageParts.sublist(3).join("|"),
+      timestamp_ms: DateTime.now().toUtc().millisecondsSinceEpoch,
+      mine: false,
+    );
+
+    if (messageParts.length == 0) {
+      List<String> lonLatStringList = messageParts[2].split(",");
+      msg.lat = double.parse(lonLatStringList[1]);
+      msg.lon = double.parse(lonLatStringList[0]);
+    }
+
+    msg.rssi = rssi;
+    msg.snr = snr;
+
+    return msg;
   }
 }

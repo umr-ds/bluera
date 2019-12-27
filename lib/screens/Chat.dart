@@ -1,19 +1,18 @@
-import 'package:BlueRa/data/Message.g.m8.dart';
-import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:BlueRa/data/Message.dart';
+import 'package:location/location.dart';
+
+import 'package:BlueRa/data/Message.g.m8.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/connectors/RF95.dart';
-import 'package:location/location.dart';
-import 'package:BlueRa/connectors/Location.dart';
 import 'package:BlueRa/screens/MessageItem.dart';
-import 'package:BlueRa/main.adapter.g.m8.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);
   final Channel channel;
+
+  ValueListenableBuilder b;
 
   @override
   State createState() => new ChatScreenState(channel);
@@ -21,42 +20,37 @@ class ChatScreen extends StatefulWidget {
 
 class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   ChatScreenState(this.channel);
-
   final Channel channel;
-  Future<List<MessageProxy>> messageList;
+
+  bool _isComposing = false;
+  final TextEditingController _textController = new TextEditingController();
 
   Future<List<MessageProxy>> getMessageProxies() async {
     var dbClient = await databaseProvider.db;
     var result = await dbClient.query(
       databaseProvider.theMessageTableHandler,
       columns: databaseProvider.theMessageColumns,
-      where: "channel = '?'",
+      where: "channel = ?",
       whereArgs: [channel.name],
+      orderBy: "timestamp DESC",
     );
 
     return result.map((e) => MessageProxy.fromMap(e)).toList();
   }
 
-  void updateMessages() {
-    messageList = getMessageProxies();
+  void _refresh() {
+    setState(() {});
   }
-
-  final TextEditingController _textController = new TextEditingController();
-
-  bool _isComposing = false;
-
-  var location = Location();
 
   @override
   void dispose() {
     super.dispose();
+    recvNotifier.removeListener(this._refresh);
   }
 
   Future _handleSubmitted(String text) async {
     _textController.clear();
-    setState(() {
-      _isComposing = false;
-    });
+    _isComposing = false;
 
     MessageProxy _msg = MessageProxy(
       user: localUser,
@@ -65,23 +59,16 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       timestamp_ms: DateTime.now().toUtc().millisecondsSinceEpoch,
       mine: true,
     );
-    MessageItem messageItem = new MessageItem(
-      message: _msg,
-      animationController: new AnimationController(
-        duration: new Duration(milliseconds: 100),
-        vsync: this,
-      ),
-    );
 
     databaseProvider.saveMessage(_msg);
     rf95.send(_msg);
+    recvNotifier.notifyListeners();
+  }
 
-    setState(() {
-      // TODO: Update msg list
-      // channel.value.messages.insert(0, _msg);
-      // dbHelper.update(channel.value.toMap());
-    });
-    messageItem.animationController.forward();
+  @override
+  void initState() {
+    super.initState();
+    recvNotifier.addListener(this._refresh);
   }
 
   @override
@@ -119,30 +106,25 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       body: new Column(
         children: <Widget>[
           new Flexible(
-              child: ValueListenableBuilder(
-            valueListenable: channelUpdated,
-            builder: (BuildContext context, _, Widget child) {
-              FutureBuilder<List<MessageProxy>>(
-                future: this.messageList,
-                initialData: [],
-                builder: (context, snapshot) => Column(
-                  children: snapshot.data.map(
-                    (msg) {
-                      MessageItem _msgItm = MessageItem(
-                        message: msg,
-                        animationController: new AnimationController(
-                          duration: new Duration(milliseconds: 100),
-                          vsync: this,
-                        ),
-                      );
-                      _msgItm.animationController.forward();
-                      return _msgItm;
-                    },
-                  ).toList(),
-                ),
-              );
-            },
-          )),
+            child: FutureBuilder(
+              future: getMessageProxies(),
+              builder: (context, snapshot) => ListView.builder(
+                reverse: true,
+                itemCount: snapshot.hasData ? snapshot.data.length : 0,
+                itemBuilder: (BuildContext context, int index) {
+                  MessageItem _msgItm = MessageItem(
+                    message: snapshot.data[index],
+                    animationController: new AnimationController(
+                      duration: new Duration(milliseconds: 100),
+                      vsync: this,
+                    ),
+                  );
+                  _msgItm.animationController.forward();
+                  return _msgItm;
+                },
+              ),
+            ),
+          ),
           new Divider(height: 1.0),
           new Container(
             decoration: new BoxDecoration(color: Theme.of(context).cardColor),

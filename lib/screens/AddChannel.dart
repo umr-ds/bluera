@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:BlueRa/data/Globals.dart';
 import 'package:BlueRa/data/Channel.dart';
-import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/screens/ChannelItems.dart';
 import 'package:BlueRa/data/Channel.g.m8.dart';
 
 class AddChannelDialog extends StatefulWidget {
