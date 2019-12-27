@@ -8,4 +8,7 @@ String localUser;
 
 ValueNotifier<List<ValueNotifier<Channel>>> channels = new ValueNotifier<List<ValueNotifier<Channel>>>(<ValueNotifier<Channel>>[]);
 
-UserLocation currentLocation;
+UserLocation currentLocation = UserLocation(
+  longitude: 0,
+  latitude: 0
+);

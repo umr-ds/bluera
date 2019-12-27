@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:BlueRa/screens/Home.dart';
 import 'package:BlueRa/connectors/Database.dart';
+import 'package:BlueRa/connectors/Location.dart';
 import 'package:BlueRa/connectors/Username.dart';
 import 'package:BlueRa/data/Channel.dart';
 import 'package:BlueRa/data/Message.dart';
@@ -19,6 +20,9 @@ class BlueRa extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    UserLocationStream().initLocation();
+
     BluetoothOffScreenState.reconnect();
 
     UsernameConnector.read();
