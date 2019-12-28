@@ -53,7 +53,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     _isComposing = false;
 
     MessageProxy _msg = MessageProxy(
-      user: localUser,
+      user: settings.user,
       text: text,
       channel: channel.name,
       timestamp_ms: DateTime.now().toUtc().millisecondsSinceEpoch,

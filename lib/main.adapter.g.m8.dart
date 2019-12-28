@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// Emitted on: 2019-12-28 00:16:51.093036
+// Emitted on: 2019-12-28 00:24:53.760928
 
 // **************************************************************************
 // DatabaseProviderGenerator
@@ -12,6 +12,7 @@ import 'package:path/path.dart';
 
 import 'package:BlueRa/data/Channel.g.m8.dart';
 import 'package:BlueRa/data/Message.g.m8.dart';
+import 'package:BlueRa/data/Settings.g.m8.dart';
 
 enum InitMode { developmentAlwaysReinitDb, testingMockDb, production }
 
@@ -54,7 +55,11 @@ class DatabaseAdapter {
   }
 }
 
-class DatabaseProvider with ChannelDatabaseProvider, MessageDatabaseProvider {
+class DatabaseProvider
+    with
+        ChannelDatabaseProvider,
+        MessageDatabaseProvider,
+        SettingsDatabaseProvider {
   static final DatabaseProvider _instance = DatabaseProvider._internal();
   static Database _db;
 
@@ -79,6 +84,7 @@ class DatabaseProvider with ChannelDatabaseProvider, MessageDatabaseProvider {
   void _onCreate(Database db, int newVersion) async {
     await createChannelTable(db);
     await createMessageTable(db);
+    await createSettingsTable(db);
   }
 
   Future close() async {
@@ -89,5 +95,6 @@ class DatabaseProvider with ChannelDatabaseProvider, MessageDatabaseProvider {
   Future deleteAll() async {
     await deleteChannelProxiesAll();
     await deleteMessageProxiesAll();
+    await deleteSettingsProxiesAll();
   }
 }

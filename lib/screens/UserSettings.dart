@@ -1,7 +1,7 @@
+import 'package:BlueRa/data/Settings.g.m8.dart';
 import 'package:flutter/material.dart';
 
 import 'package:BlueRa/data/Globals.dart';
-import 'package:BlueRa/connectors/Username.dart';
 import 'package:BlueRa/screens/Home.dart';
 
 class UserSettingsScreen extends StatefulWidget {
@@ -14,55 +14,66 @@ class UserSettingsScreenState extends State<UserSettingsScreen> {
   bool _valid = false;
 
   @override
+  void initState() {
+    _userNameController.text = settings == null ? "" : settings.user;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        appBar: new AppBar(
-            title: Text("Choose a User Name"),
-            backgroundColor: Color(0xFF0A3D91)),
-        body: new Padding(
-          child: new Column(
-            children: <Widget>[
-              new TextField(
-                controller: _userNameController,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: localUser == null ? "Enter Username" : localUser,
-                  errorText: _valid
-                      ? "Username must not be empty and must not contain '|'"
-                      : null,
-                ),
+      appBar: new AppBar(
+          title: Text("User Settings"), backgroundColor: Color(0xFF0A3D91)),
+      body: new Padding(
+        child: new Column(
+          children: <Widget>[
+            new TextField(
+              controller: _userNameController,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                labelText: "Username",
+                errorText: _valid
+                    ? "Username must not be empty and must not contain '|'"
+                    : null,
               ),
-              new Row(
-                children: <Widget>[
-                  new Expanded(
-                      child: new RaisedButton(
-                    onPressed: () {
-                      setState(() {
-                        bool notEmpty = _userNameController.text.isNotEmpty;
-                        bool validChars =
+            ),
+            new Row(
+              children: <Widget>[
+                new Expanded(
+                    child: new RaisedButton(
+                  onPressed: () {
+                    setState(
+                      () {
+                        _valid = _userNameController.text.isNotEmpty &&
                             !(_userNameController.text.contains("|"));
-                        (notEmpty && validChars)
-                            ? _valid = true
-                            : _valid = false;
-                      });
-                      if (_valid) {
-                        localUser = _userNameController.text;
-                        UsernameConnector.write(localUser);
-
+                      },
+                    );
+                    if (_valid) {
+                      if (settings == null) {
+                        settings =
+                            new SettingsProxy(user: _userNameController.text);
+                        databaseProvider.saveSettings(settings);
                         Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomeScreen(),
-                            ));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomeScreen(),
+                          ),
+                        );
+                      } else {
+                        settings.user = _userNameController.text;
+                        databaseProvider.updateSettings(settings);
+                        Navigator.pop(context);
                       }
-                    },
-                    child: new Text("OK"),
-                  ))
-                ],
-              )
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        ));
+                    }
+                  },
+                  child: new Text("OK"),
+                ))
+              ],
+            )
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      ),
+    );
   }
 }

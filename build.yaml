@@ -6,3 +6,4 @@ targets:
           - lib/main.dart
           - lib/data/Message.dart
           - lib/data/Channel.dart
+          - lib/data/Settings.dart
