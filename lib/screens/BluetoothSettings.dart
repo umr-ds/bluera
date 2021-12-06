@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:BlueRa/connectors/RF95.dart';
+import 'package:bluera/connectors/RF95.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
 class BluetoothSettingsScreen extends StatefulWidget {
@@ -33,21 +33,21 @@ class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
 class BluetoothOnScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => BluetoothOffScreenState();
-
 }
 
 class BluetoothOffScreenState extends State<BluetoothOnScreen> {
   bool isConnected = false;
   bool searching = false;
 
-  static void reconnect(){
+  static void reconnect() {
     FlutterBlue.instance.connectedDevices.then((devices) {
       for (BluetoothDevice device in devices) {
         device.discoverServices().then((services) {
           services.forEach((service) {
             if (service.uuid == serviceUUID) {
               rf95 = RF95(device);
-              for(BluetoothCharacteristic characteristic in service.characteristics) {
+              for (BluetoothCharacteristic characteristic
+                  in service.characteristics) {
                 if (characteristic.uuid == writeCharacteristicUUID) {
                   rf95.writeCharacteristic = characteristic;
                 }
@@ -70,104 +70,105 @@ class BluetoothOffScreenState extends State<BluetoothOnScreen> {
 
     searching = false;
     setState(() => isConnected = rf95 == null);
-    return isConnected ? [ListTile(title: Text("Not Connected."))] : _connectedDevice();
+    return isConnected
+        ? [ListTile(title: Text("Not Connected."))]
+        : _connectedDevice();
   }
 
   List<Widget> _connectedDevice() {
-    return [ListTile(
-      title: Text(rf95.dev.name),
-      subtitle: Text(rf95.dev.id.toString()),
-      trailing: FlatButton(
-        child: Text("Disconnect"),
-        onPressed: () async {
-          await rf95.disconnect();
-          rf95 = null;
-          setState(() => isConnected = false);
-        }
-      )
-    )];
+    return [
+      ListTile(
+          title: Text(rf95.dev.name),
+          subtitle: Text(rf95.dev.id.toString()),
+          trailing: TextButton(
+              child: Text("Disconnect"),
+              onPressed: () async {
+                await rf95.disconnect();
+                rf95 = null;
+                setState(() => isConnected = false);
+              }))
+    ];
   }
 
   Widget _connectedDevicesTile() {
     setState(() => isConnected = rf95 == null ? false : true);
-    return Column(
-      children: rf95 == null ? _defaultHint() : _connectedDevice()
-    );
+    return Column(children: rf95 == null ? _defaultHint() : _connectedDevice());
   }
+
   @override
   Widget build(BuildContext context) {
     return new Container(
-    child: new Stack(
-      children: <Widget>[
-        ListView(
-          children: <Widget>[
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 2),
-              color: Colors.lightGreen,
-              child: ListTile(
-                title: Text("Bluetooth is Enabled",
-                    style: TextStyle(color: Colors.white)),
+        child: new Stack(children: <Widget>[
+      ListView(children: <Widget>[
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 2),
+          color: Colors.lightGreen,
+          child: ListTile(
+            title: Text("Bluetooth is Enabled",
+                style: TextStyle(color: Colors.white)),
+          ),
+        ),
+        ListTile(
+            title: Text("Conected Devices:"),
+            trailing: (!isConnected && searching)
+                ? const CircularProgressIndicator()
+                : Text("")),
+        _connectedDevicesTile(),
+        Divider(),
+        ListTile(
+          title: Text("Scan for Devices"),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BluetoothScanScreen(),
               ),
-            ),
-            ListTile(
-              title: Text("Conected Devices:"),
-              trailing: (!isConnected && searching) ? const CircularProgressIndicator() : Text("")
-            ),
-            _connectedDevicesTile(),
-            Divider(),
-            ListTile(
-              title: Text("Scan for Devices"),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BluetoothScanScreen(),
-                  ),
-                );
-              },
-              trailing: Icon(Icons.arrow_forward_ios),
-            ),
-        ])]));
+            );
+          },
+          trailing: Icon(Icons.arrow_forward_ios),
+        ),
+      ])
+    ]));
   }
 }
 
 class BluetoothScanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {FlutterBlue.instance.startScan(timeout: Duration(seconds: 4));});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FlutterBlue.instance.startScan(timeout: Duration(seconds: 4));
+    });
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Scan'),
-        backgroundColor: Color(0xFF0A3D91),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () =>
-            FlutterBlue.instance.startScan(timeout: Duration(seconds: 4)),
-        child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height
-            ),
-            child: Column(
-              children: <Widget>[
-                StreamBuilder<List<ScanResult>>(
-                  stream: FlutterBlue.instance.scanResults,
-                  initialData: [],
-                  builder: (c, snapshot) => Column(
-                    children: snapshot.data
-                        .map(
-                          (r) => ScanResultTile(r),
-                        )
-                        .toList(),
-                  ),
-                )
-              ],
+        appBar: AppBar(
+          title: Text('Scan'),
+          backgroundColor: Color(0xFF0A3D91),
+        ),
+        body: RefreshIndicator(
+          onRefresh: () =>
+              FlutterBlue.instance.startScan(timeout: Duration(seconds: 4)),
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+              child: Column(
+                children: <Widget>[
+                  StreamBuilder<List<ScanResult>>(
+                    stream: FlutterBlue.instance.scanResults,
+                    initialData: [],
+                    builder: (c, snapshot) => Column(
+                      children: snapshot.data
+                          .map(
+                            (r) => ScanResultTile(r),
+                          )
+                          .toList(),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
-        ),
-      )
-    );
+        ));
   }
 }
 
@@ -204,7 +205,8 @@ class ScanResultTile extends StatelessWidget {
 
     services.forEach((service) {
       if (service.uuid == serviceUUID) {
-        for(BluetoothCharacteristic characteristic in service.characteristics) {
+        for (BluetoothCharacteristic characteristic
+            in service.characteristics) {
           if (characteristic.uuid == writeCharacteristicUUID) {
             rf95.writeCharacteristic = characteristic;
           }
@@ -228,14 +230,15 @@ class ScanResultTile extends StatelessWidget {
     return ListTile(
       title: _buildTitle(context),
       leading: Text(result.rssi.toString() + "dB"),
-      trailing: FlatButton(
+      trailing: TextButton(
         child: Text('Connect'),
-        onPressed: () => result.advertisementData.connectable ? _connectAndReturn(result.device, context) : null,
+        onPressed: () => result.advertisementData.connectable
+            ? _connectAndReturn(result.device, context)
+            : null,
       ),
     );
   }
 }
-
 
 class BluetoothOffScreen extends StatelessWidget {
   const BluetoothOffScreen({Key key}) : super(key: key);
@@ -257,7 +260,7 @@ class BluetoothOffScreen extends StatelessWidget {
               'Bluetooth Adapter is disabled!',
               style: Theme.of(context)
                   .primaryTextTheme
-                  .subhead
+                  .subtitle1
                   .copyWith(color: Colors.white),
             ),
           ],

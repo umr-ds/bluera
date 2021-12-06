@@ -1,15 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:BlueRa/screens/Home.dart';
-import 'package:BlueRa/connectors/Database.dart';
-import 'package:BlueRa/connectors/Location.dart';
-import 'package:BlueRa/connectors/Username.dart';
-import 'package:BlueRa/data/Channel.dart';
-import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/data/Globals.dart';
-import 'package:BlueRa/screens/BluetoothSettings.dart';
-import 'package:BlueRa/screens/UserSettings.dart';
+import 'package:bluera/screens/Home.dart';
+import 'package:bluera/connectors/Database.dart';
+import 'package:bluera/connectors/Location.dart';
+import 'package:bluera/connectors/Username.dart';
+import 'package:bluera/data/Channel.dart';
+import 'package:bluera/data/Message.dart';
+import 'package:bluera/data/Globals.dart';
+import 'package:bluera/screens/BluetoothSettings.dart';
+import 'package:bluera/screens/UserSettings.dart';
 
 void main() {
   runApp(new BlueRa());
@@ -39,7 +39,7 @@ class BlueRa extends StatelessWidget {
           continue;
         }
         channels.value.add(_chn);
-        channels.notifyListeners();
+        //channels.notifyListeners();
       }
     });
     return new MaterialApp(

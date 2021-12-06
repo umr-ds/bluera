@@ -1,7 +1,7 @@
 import 'package:location/location.dart';
 import 'dart:async';
-import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/data/Globals.dart';
+import 'package:bluera/data/Message.dart';
+import 'package:bluera/data/Globals.dart';
 
 class UserLocationStream {
   Location location = new Location();
@@ -12,29 +12,28 @@ class UserLocationStream {
       location.requestService();
     }
 
-    bool locationPermission = await location.hasPermission();
-    if (!locationPermission) {
+    PermissionStatus locationPermission = await location.hasPermission();
+    if (locationPermission == PermissionStatus.denied) {
       location.requestPermission();
     }
   }
 
-  StreamController<UserLocation> _locationController = StreamController<UserLocation>();
+  StreamController<UserLocation> _locationController =
+      StreamController<UserLocation>();
   Stream<UserLocation> get locationStream => _locationController.stream;
 
   void locationService() async {
     bool serviceEnabled = await location.serviceEnabled();
-    bool locationPermission = await location.hasPermission();
+    PermissionStatus locationPermission = await location.hasPermission();
 
-    if (!serviceEnabled || !locationPermission) {
+    if (!serviceEnabled || locationPermission == PermissionStatus.denied) {
       return;
     }
 
-    location.onLocationChanged().listen((locationData) {
+    location.onLocationChanged.listen((locationData) {
       if (locationData != null) {
         currentLocation = UserLocation(
-          latitude: locationData.latitude,
-          longitude: locationData.longitude
-        );
+            latitude: locationData.latitude, longitude: locationData.longitude);
       }
     });
   }

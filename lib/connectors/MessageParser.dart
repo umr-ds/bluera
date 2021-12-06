@@ -1,7 +1,7 @@
-import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/data/Channel.dart';
-import 'package:BlueRa/data/Globals.dart';
-import 'package:BlueRa/connectors/Database.dart';
+import 'package:bluera/data/Message.dart';
+import 'package:bluera/data/Channel.dart';
+import 'package:bluera/data/Globals.dart';
+import 'package:bluera/connectors/Database.dart';
 import 'package:flutter/material.dart';
 
   void handleRecvData(String completeMessage) {
@@ -32,5 +32,5 @@ import 'package:flutter/material.dart';
       dbHelper.update(channel.value.toMap());
     }
 
-    channel.notifyListeners();
+    //channel.notifyListeners();
   }

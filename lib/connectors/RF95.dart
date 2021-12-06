@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:convert/convert.dart';
 
-import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/connectors/MessageParser.dart';
+import 'package:bluera/data/Message.dart';
+import 'package:bluera/connectors/MessageParser.dart';
 
 Guid serviceUUID = new Guid("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 Guid writeCharacteristicUUID = new Guid("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -53,7 +53,8 @@ class RF95 {
 
   void onData(List<int> data) {
     if (!readBufferFilling) {
-      if (data.isNotEmpty && utf8.decode(data.getRange(0, 3).toList()) == "+RX") {
+      if (data.isNotEmpty &&
+          utf8.decode(data.getRange(0, 3).toList()) == "+RX") {
         readBufferFilling = true;
       }
     }
@@ -82,9 +83,13 @@ class RF95 {
   }
 
   List<int> encodeMessage(Message msg) {
-    String location = msg.location.longitude.toString() + "," + msg.location.latitude.toString();
-    final String completeMessage = msg.channel + "|" + msg.user + "|" + location + "|" + msg.text;
-    return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n").codeUnits;
+    String location = msg.location.longitude.toString() +
+        "," +
+        msg.location.latitude.toString();
+    final String completeMessage =
+        msg.channel + "|" + msg.user + "|" + location + "|" + msg.text;
+    return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n")
+        .codeUnits;
   }
 
   Future send(Message msg) async {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:BlueRa/screens/Chat.dart';
-import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/data/Globals.dart';
-import 'package:BlueRa/connectors/Database.dart';
+import 'package:bluera/screens/Chat.dart';
+import 'package:bluera/data/Message.dart';
+import 'package:bluera/data/Globals.dart';
+import 'package:bluera/connectors/Database.dart';
 
 class Channel {
   Channel(this.name, this.attending, this.messages);
@@ -19,8 +19,8 @@ class Channel {
     };
   }
 
-  static String encondeToJson(List<Message> messages){
-    List jsonList = List();
+  static String encondeToJson(List<Message> messages) {
+    List<Map<String, dynamic>> jsonList = [];
     messages.map((item) => jsonList.add(item.toJson())).toList();
     return jsonList.toString();
   }
@@ -78,7 +78,7 @@ class AddChannelOverviewItem extends StatelessWidget {
         ValueNotifier<Channel> channel = Channel.getChannel(chan.name);
         channel.value.attending = true;
         dbHelper.update(channel.value.toMap());
-        channels.notifyListeners();
+        //channels.notifyListeners();
         Navigator.pop(context);
       },
     );

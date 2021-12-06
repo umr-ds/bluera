@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:BlueRa/data/Globals.dart';
-import 'package:BlueRa/data/Channel.dart';
-import 'package:BlueRa/data/Message.dart';
-import 'package:BlueRa/connectors/Database.dart';
+import 'package:bluera/data/Globals.dart';
+import 'package:bluera/data/Channel.dart';
+import 'package:bluera/data/Message.dart';
+import 'package:bluera/connectors/Database.dart';
 
 class AddChannelDialog extends StatefulWidget {
   @override
@@ -25,47 +25,57 @@ class AddChannelDialogState extends State<AddChannelDialog> {
           child: new Column(
             children: <Widget>[
               new Flexible(
-                child: ValueListenableBuilder(
-                  valueListenable: channels,
-                  builder: (BuildContext context, List<ValueNotifier<Channel>> channels, Widget child) {
-                    var localChannels = channels.where((channel) => channel.value.attending == false).toList();
-                    return ListView.builder(
-                      itemBuilder: (BuildContext context, int index) {
-                          return AddChannelOverviewItem(localChannels[index].value);
-                      },
-                      itemCount: localChannels.length,
-                    );
-                  },
-                )
-              ),
+                  child: ValueListenableBuilder(
+                valueListenable: channels,
+                builder: (BuildContext context,
+                    List<ValueNotifier<Channel>> channels, Widget child) {
+                  var localChannels = channels
+                      .where((channel) => channel.value.attending == false)
+                      .toList();
+                  return ListView.builder(
+                    itemBuilder: (BuildContext context, int index) {
+                      return AddChannelOverviewItem(localChannels[index].value);
+                    },
+                    itemCount: localChannels.length,
+                  );
+                },
+              )),
               new Divider(color: Color(0xFF000000)),
               new TextField(
                 controller: _channelNameController,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: 'Create new channel',
-                  errorText: _valid ? "Channel name must not be empty and must not contain '|'" : null,
+                  errorText: _valid
+                      ? "Channel name must not be empty and must not contain '|'"
+                      : null,
                 ),
               ),
               new Row(
                 children: <Widget>[
                   new Expanded(
-                    child: new RaisedButton(
-                      onPressed: () {
-                        setState(() {
-                          bool notEmpty = _channelNameController.text.isNotEmpty;
-                          bool validChars = !(_channelNameController.text.contains("|"));
-                          (notEmpty && validChars) ? _valid = true : _valid = false;
-                        });
-                        if (_valid) {
-                          Channel tmpChannel = Channel(_channelNameController.text, true, new List<Message>());
-                          dbHelper.insert(tmpChannel.toMap());
-                          ValueNotifier<Channel> _chn = ValueNotifier(tmpChannel);
-                          channels.value.add(_chn);
-                          channels.notifyListeners();
-                          Navigator.pop(context);
-                        }
-                      },
+                      child: new ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        bool notEmpty = _channelNameController.text.isNotEmpty;
+                        bool validChars =
+                            !(_channelNameController.text.contains("|"));
+                        (notEmpty && validChars)
+                            ? _valid = true
+                            : _valid = false;
+                      });
+                      if (_valid) {
+                        Channel tmpChannel = Channel(
+                            _channelNameController.text,
+                            true,
+                            List<Message>.empty());
+                        dbHelper.insert(tmpChannel.toMap());
+                        ValueNotifier<Channel> _chn = ValueNotifier(tmpChannel);
+                        channels.value.add(_chn);
+                        //channels.notifyListeners();
+                        Navigator.pop(context);
+                      }
+                    },
                     child: new Text("Create"),
                   ))
                 ],
