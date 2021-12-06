@@ -32,5 +32,5 @@ import 'package:flutter/material.dart';
       dbHelper.update(channel.value.toMap());
     }
 
-    //channel.notifyListeners();
+    channel.notifyListeners();
   }

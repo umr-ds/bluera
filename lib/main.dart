@@ -39,7 +39,7 @@ class BlueRa extends StatelessWidget {
           continue;
         }
         channels.value.add(_chn);
-        //channels.notifyListeners();
+        channels.notifyListeners();
       }
     });
     return new MaterialApp(

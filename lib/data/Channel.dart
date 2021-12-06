@@ -78,7 +78,7 @@ class AddChannelOverviewItem extends StatelessWidget {
         ValueNotifier<Channel> channel = Channel.getChannel(chan.name);
         channel.value.attending = true;
         dbHelper.update(channel.value.toMap());
-        //channels.notifyListeners();
+        channels.notifyListeners();
         Navigator.pop(context);
       },
     );

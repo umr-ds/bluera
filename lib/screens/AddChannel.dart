@@ -68,11 +68,11 @@ class AddChannelDialogState extends State<AddChannelDialog> {
                         Channel tmpChannel = Channel(
                             _channelNameController.text,
                             true,
-                            List<Message>.empty());
+                            List<Message>.empty(growable: true));
                         dbHelper.insert(tmpChannel.toMap());
                         ValueNotifier<Channel> _chn = ValueNotifier(tmpChannel);
                         channels.value.add(_chn);
-                        //channels.notifyListeners();
+                        channels.notifyListeners();
                         Navigator.pop(context);
                       }
                     },

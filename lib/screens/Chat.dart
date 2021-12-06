@@ -88,9 +88,9 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           new IconButton(
             icon: new Icon(Icons.open_in_new),
             onPressed: () {
-              channel.value.attending = false;
               dbHelper.update(channel.value.toMap());
-              //channels.notifyListeners();
+              channel.value.attending = false;
+              channels.notifyListeners();
               Navigator.pop(context);
             },
           ),
