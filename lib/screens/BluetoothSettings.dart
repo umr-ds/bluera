@@ -149,11 +149,11 @@ class BluetoothScreenState extends State<BluetoothOnScreen> {
           margin: const EdgeInsets.symmetric(vertical: 2),
           color: Colors.lightGreen,
           child: ListTile(
-            title: Text("Bluetooth is Enabled", style: TextStyle(color: Colors.white)),
+            title: Text("Bluetooth is available.", style: TextStyle(color: Colors.white)),
           ),
         ),
         ListTile(
-            title: Text("Conected Devices:"),
+            title: Text("Conected device:"),
             trailing: (!isConnected && searching) ? const CircularProgressIndicator() : Text("")),
         _connectedDevicesTile(),
         Divider(),
@@ -196,13 +196,16 @@ class BluetoothScanScreen extends StatelessWidget {
                   StreamBuilder<List<ScanResult>>(
                     stream: FlutterBlue.instance.scanResults,
                     initialData: [],
-                    builder: (c, snapshot) => Column(
-                      children: snapshot.data
-                          .map(
-                            (r) => ScanResultTile(r),
-                          )
-                          .toList(),
-                    ),
+                    builder: (c, snapshot) {
+                      snapshot.data.sort((a, b) => b.rssi.compareTo(a.rssi));
+                      return Column(
+                        children: snapshot.data
+                            .map(
+                              (r) => ScanResultTile(r),
+                            )
+                            .toList(),
+                      );
+                    },
                   )
                 ],
               ),
