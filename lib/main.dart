@@ -18,35 +18,47 @@ void main() {
 class BlueRa extends StatelessWidget {
   final DBConnector dbHelper = DBConnector.instance;
 
+  Future<bool> initAppState() async {
+    print("Requesting Location Stream");
+    await UserLocationStream().initLocation();
+    print("Reconnecting to Bluetooth Device");
+    await BluetoothScreenState.reconnect();
+    print("Reading username");
+    await UsernameConnector.read();
+
+    print("Initializing chats from database");
+    List<Map<String, dynamic>> rows = await dbHelper.queryAllRows();
+    for (Map<String, dynamic> row in rows) {
+      String channelName = row[DBConnector.columnName];
+      bool attending = row[DBConnector.columnAttending].toLowerCase() == "true";
+      String messagesJson = row[DBConnector.columnMessages];
+      Iterable jsonObjects = json.decode(messagesJson);
+      List<Message> messages = jsonObjects.map((item) => Message.fromJson(item)).toList();
+      ValueNotifier<Channel> _chn = ValueNotifier<Channel>(Channel(channelName, attending, messages));
+      if (Channel.getChannel(_chn.value.name) != null) {
+        continue;
+      }
+      channels.value.add(_chn);
+      channels.notifyListeners();
+    }
+
+    print("Finished initialization of app state");
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) => FutureBuilder(
-        future: UsernameConnector.read(),
-        builder: (context, localUser) {
-          UserLocationStream().initLocation();
-          BluetoothOffScreenState.reconnect();
-
-          dbHelper.queryAllRows().then((rows) {
-            for (Map<String, dynamic> row in rows) {
-              String channelName = row[DBConnector.columnName];
-              bool attending = row[DBConnector.columnAttending].toLowerCase() == "true";
-              String messagesJson = row[DBConnector.columnMessages];
-              Iterable jsonObjects = json.decode(messagesJson);
-              List<Message> messages = jsonObjects.map((item) => Message.fromJson(item)).toList();
-              ValueNotifier<Channel> _chn = ValueNotifier<Channel>(Channel(channelName, attending, messages));
-              if (Channel.getChannel(_chn.value.name) != null) {
-                continue;
-              }
-              channels.value.add(_chn);
-              channels.notifyListeners();
-            }
-          });
-
-          if (localUser.hasData) {
+        future: initAppState(),
+        builder: (context, appStateReady) {
+          if (appStateReady.hasData) {
+            print("Initialization finished, building app");
             return new MaterialApp(
               title: "BlueRa",
-              home: localUser.data == null ? UserSettingsScreen() : HomeScreen(),
+              home: localUser == null ? UserSettingsScreen() : HomeScreen(),
             );
           } else {
+            print("Init not finished, showing progress incicator");
             return CircularProgressIndicator();
           }
         },

@@ -1,5 +1,7 @@
+import 'package:bluera/data/Message.dart';
 import 'package:flutter/material.dart';
 import 'package:bluera/connectors/RF95.dart';
+import 'package:bluera/connectors/Location.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
 class BluetoothSettingsScreen extends StatefulWidget {
@@ -21,10 +23,24 @@ class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
           initialData: BluetoothState.unknown,
           builder: (c, snapshot) {
             final state = snapshot.data;
-            if (state == BluetoothState.on) {
-              return BluetoothOnScreen();
+            print("Bluetooth state: ${state}");
+            if (state != BluetoothState.on) {
+              return BluetoothOffScreen();
             }
-            return BluetoothOffScreen();
+
+            return FutureBuilder(
+              future: UserLocationStream().locationServicesAvailable(),
+              builder: (context, locationServiceAvailable) {
+                if (locationServiceAvailable.hasData) {
+                  if (locationServiceAvailable.data) {
+                    return BluetoothOnScreen();
+                  }
+                  return LocationServicesDisabledScreen();
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            );
           }),
     );
   }
@@ -32,10 +48,10 @@ class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
 
 class BluetoothOnScreen extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => BluetoothOffScreenState();
+  State<StatefulWidget> createState() => BluetoothScreenState();
 }
 
-class BluetoothOffScreenState extends State<BluetoothOnScreen> {
+class BluetoothScreenState extends State<BluetoothOnScreen> {
   bool isConnected = false;
   bool searching = false;
 
@@ -46,8 +62,7 @@ class BluetoothOffScreenState extends State<BluetoothOnScreen> {
           services.forEach((service) {
             if (service.uuid == serviceUUID) {
               rf95 = RF95(device);
-              for (BluetoothCharacteristic characteristic
-                  in service.characteristics) {
+              for (BluetoothCharacteristic characteristic in service.characteristics) {
                 if (characteristic.uuid == writeCharacteristicUUID) {
                   rf95.writeCharacteristic = characteristic;
                 }
@@ -70,9 +85,7 @@ class BluetoothOffScreenState extends State<BluetoothOnScreen> {
 
     searching = false;
     setState(() => isConnected = rf95 == null);
-    return isConnected
-        ? [ListTile(title: Text("Not Connected."))]
-        : _connectedDevice();
+    return isConnected ? [ListTile(title: Text("Not Connected."))] : _connectedDevice();
   }
 
   List<Widget> _connectedDevice() {
@@ -104,15 +117,12 @@ class BluetoothOffScreenState extends State<BluetoothOnScreen> {
           margin: const EdgeInsets.symmetric(vertical: 2),
           color: Colors.lightGreen,
           child: ListTile(
-            title: Text("Bluetooth is Enabled",
-                style: TextStyle(color: Colors.white)),
+            title: Text("Bluetooth is Enabled", style: TextStyle(color: Colors.white)),
           ),
         ),
         ListTile(
             title: Text("Conected Devices:"),
-            trailing: (!isConnected && searching)
-                ? const CircularProgressIndicator()
-                : Text("")),
+            trailing: (!isConnected && searching) ? const CircularProgressIndicator() : Text("")),
         _connectedDevicesTile(),
         Divider(),
         ListTile(
@@ -144,13 +154,11 @@ class BluetoothScanScreen extends StatelessWidget {
           backgroundColor: Color(0xFF0A3D91),
         ),
         body: RefreshIndicator(
-          onRefresh: () =>
-              FlutterBlue.instance.startScan(timeout: Duration(seconds: 4)),
+          onRefresh: () => FlutterBlue.instance.startScan(timeout: Duration(seconds: 4)),
           child: SingleChildScrollView(
             physics: AlwaysScrollableScrollPhysics(),
             child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+              constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
               child: Column(
                 children: <Widget>[
                   StreamBuilder<List<ScanResult>>(
@@ -205,8 +213,7 @@ class ScanResultTile extends StatelessWidget {
 
     services.forEach((service) {
       if (service.uuid == serviceUUID) {
-        for (BluetoothCharacteristic characteristic
-            in service.characteristics) {
+        for (BluetoothCharacteristic characteristic in service.characteristics) {
           if (characteristic.uuid == writeCharacteristicUUID) {
             rf95.writeCharacteristic = characteristic;
           }
@@ -232,9 +239,7 @@ class ScanResultTile extends StatelessWidget {
       leading: Text(result.rssi.toString() + "dB"),
       trailing: TextButton(
         child: Text('Connect'),
-        onPressed: () => result.advertisementData.connectable
-            ? _connectAndReturn(result.device, context)
-            : null,
+        onPressed: () => result.advertisementData.connectable ? _connectAndReturn(result.device, context) : null,
       ),
     );
   }
@@ -258,10 +263,34 @@ class BluetoothOffScreen extends StatelessWidget {
             ),
             Text(
               'Bluetooth Adapter is disabled!',
-              style: Theme.of(context)
-                  .primaryTextTheme
-                  .subtitle1
-                  .copyWith(color: Colors.white),
+              style: Theme.of(context).primaryTextTheme.subtitle1.copyWith(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LocationServicesDisabledScreen extends StatelessWidget {
+  const LocationServicesDisabledScreen({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFF0A3D91),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(
+              Icons.location_off,
+              size: 200.0,
+              color: Colors.white54,
+            ),
+            Text(
+              'Location Services are disabled!',
+              style: Theme.of(context).primaryTextTheme.subtitle1.copyWith(color: Colors.white),
             ),
           ],
         ),

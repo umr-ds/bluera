@@ -9,17 +9,28 @@ class UserLocationStream {
   void initLocation() async {
     bool serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
-      location.requestService();
+      await location.requestService();
     }
 
     PermissionStatus locationPermission = await location.hasPermission();
     if (locationPermission == PermissionStatus.denied) {
-      location.requestPermission();
+      await location.requestPermission();
     }
   }
 
-  StreamController<UserLocation> _locationController =
-      StreamController<UserLocation>();
+  Future<bool> locationServicesAvailable() async {
+    switch (await location.hasPermission()) {
+      case PermissionStatus.granted:
+      case PermissionStatus.grantedLimited:
+        print("Location permission granted.");
+        return true;
+      default:
+        print("Location permission not granted.");
+        return false;
+    }
+  }
+
+  StreamController<UserLocation> _locationController = StreamController<UserLocation>();
   Stream<UserLocation> get locationStream => _locationController.stream;
 
   void locationService() async {
@@ -32,8 +43,7 @@ class UserLocationStream {
 
     location.onLocationChanged.listen((locationData) {
       if (locationData != null) {
-        currentLocation = UserLocation(
-            latitude: locationData.latitude, longitude: locationData.longitude);
+        currentLocation = UserLocation(latitude: locationData.latitude, longitude: locationData.longitude);
       }
     });
   }

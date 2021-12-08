@@ -27,8 +27,7 @@ class HomeScreen extends StatelessWidget {
             ),
             PopupMenuButton<MenuButtonItem>(
               icon: Icon(Icons.more_horiz),
-              onSelected: (MenuButtonItem result) =>
-                  moreButtonAction(result, context),
+              onSelected: (MenuButtonItem result) => moreButtonAction(result, context),
               itemBuilder: (BuildContext context) {
                 return MenuButtons.moreButtonItems.map((MenuButtonItem choice) {
                   return PopupMenuItem<MenuButtonItem>(
@@ -50,11 +49,8 @@ class HomeScreen extends StatelessWidget {
         ),
         body: ValueListenableBuilder(
           valueListenable: channels,
-          builder: (BuildContext context, List<ValueNotifier<Channel>> channels,
-              Widget child) {
-            var localChannels = channels
-                .where((channel) => channel.value.attending == true)
-                .toList();
+          builder: (BuildContext context, List<ValueNotifier<Channel>> channels, Widget child) {
+            var localChannels = channels.where((channel) => channel.value.attending == true).toList();
             return ListView.builder(
               itemBuilder: (BuildContext context, int index) {
                 return ChannelOverviewItem(localChannels[index].value, context);
@@ -75,17 +71,13 @@ class MenuButtonItem {
 
 class MenuButtons {
   static MenuButtonItem userSettings =
-      new MenuButtonItem(new Icon(Icons.perm_identity), "User Settings");
-  static MenuButtonItem bluetoothSettings = new MenuButtonItem(
-      new Icon(Icons.settings_bluetooth), "Bluetooth Settings");
-  static MenuButtonItem loraSettings = new MenuButtonItem(
-      new Icon(Icons.settings_input_antenna), "LoRa Settings");
+      new MenuButtonItem(new Icon(Icons.perm_identity, color: Color(0xFF0A3D91)), "User Settings");
+  static MenuButtonItem bluetoothSettings =
+      new MenuButtonItem(new Icon(Icons.settings_bluetooth, color: Color(0xFF0A3D91)), "Bluetooth Settings");
+  static MenuButtonItem loraSettings =
+      new MenuButtonItem(new Icon(Icons.settings_input_antenna, color: Color(0xFF0A3D91)), "LoRa Settings");
 
-  static final List<MenuButtonItem> moreButtonItems = [
-    userSettings,
-    bluetoothSettings,
-    loraSettings
-  ];
+  static final List<MenuButtonItem> moreButtonItems = [userSettings, bluetoothSettings, loraSettings];
 }
 
 void moreButtonAction(MenuButtonItem choice, BuildContext context) {
