@@ -59,7 +59,7 @@ class BlueRa extends StatelessWidget {
             );
           } else {
             print("Init not finished, showing progress incicator");
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           }
         },
       );

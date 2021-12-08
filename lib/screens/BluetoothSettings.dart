@@ -1,3 +1,4 @@
+import 'package:bluera/connectors/Location.dart';
 import 'package:flutter/material.dart';
 import 'package:bluera/connectors/RF95.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -10,6 +11,7 @@ class BluetoothSettingsScreen extends StatefulWidget {
 class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
   @override
   Widget build(BuildContext context) {
+    // principal layout
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Bluetooth Settings"),
@@ -18,24 +20,57 @@ class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
       body: StreamBuilder<BluetoothState>(
           stream: FlutterBlue.instance.state,
           initialData: BluetoothState.unknown,
-          builder: (c, snapshot) {
-            final state = snapshot.data;
-            print("Bluetooth state: ${state}");
-            if (state != BluetoothState.on) {
-              return BluetoothOffScreen();
+          builder: (c, bluetoothState) {
+            // Bluetooth state not yet known
+            if (!bluetoothState.hasData) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            // Bluetooth is not enabled or permissions are missing.
+            if (bluetoothState.data != BluetoothState.on) {
+              return BluetoothSettingsErrorScreen(
+                errorText: "Bluetooth not available: ${bluetoothState.data.toString()}.",
+                iconData: Icons.bluetooth_disabled,
+              );
             }
 
             return FutureBuilder(
-              future: Location().hasPermission(),
-              builder: (context, locationServiceAvailable) {
-                if (locationServiceAvailable.hasData) {
-                  if (locationServiceAvailable.data == PermissionStatus.granted) {
-                    return BluetoothOnScreen();
-                  }
-                  return LocationServicesDisabledScreen();
-                } else {
-                  return CircularProgressIndicator();
+              future: UserLocation.location.serviceEnabled(),
+              builder: (context, locationServiceEnabled) {
+                // Location service status is not yet known
+                if (!locationServiceEnabled.hasData) {
+                  return Center(child: CircularProgressIndicator());
                 }
+
+                // Location services are disabled
+                if (!locationServiceEnabled.data) {
+                  return BluetoothSettingsErrorScreen(
+                    errorText: "Location Services are disabled.",
+                    iconData: Icons.location_off,
+                  );
+                }
+
+                // location services are enabled -> check permissions
+                return FutureBuilder(
+                    future: UserLocation.location.hasPermission(),
+                    builder: (context, locationServicePermission) {
+                      // Permissions are not yet known
+                      if (!locationServicePermission.hasData) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+
+                      switch (locationServicePermission.data) {
+                        case PermissionStatus.granted:
+                        case PermissionStatus.grantedLimited:
+                          return BluetoothOnScreen();
+
+                        default:
+                          return BluetoothSettingsErrorScreen(
+                            errorText: "Location Services permissions missing: ${locationServicePermission.data}",
+                            iconData: Icons.location_off,
+                          );
+                      }
+                    });
               },
             );
           }),
@@ -242,8 +277,11 @@ class ScanResultTile extends StatelessWidget {
   }
 }
 
-class BluetoothOffScreen extends StatelessWidget {
-  const BluetoothOffScreen({Key key}) : super(key: key);
+class BluetoothSettingsErrorScreen extends StatelessWidget {
+  final String errorText;
+  final IconData iconData;
+
+  const BluetoothSettingsErrorScreen({Key key, this.errorText, this.iconData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -254,39 +292,12 @@ class BluetoothOffScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Icon(
-              Icons.bluetooth_disabled,
+              iconData,
               size: 200.0,
               color: Colors.white54,
             ),
             Text(
-              'Bluetooth Adapter is disabled!',
-              style: Theme.of(context).primaryTextTheme.subtitle1.copyWith(color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class LocationServicesDisabledScreen extends StatelessWidget {
-  const LocationServicesDisabledScreen({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFF0A3D91),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(
-              Icons.location_off,
-              size: 200.0,
-              color: Colors.white54,
-            ),
-            Text(
-              'Location Services are disabled!',
+              errorText,
               style: Theme.of(context).primaryTextTheme.subtitle1.copyWith(color: Colors.white),
             ),
           ],
