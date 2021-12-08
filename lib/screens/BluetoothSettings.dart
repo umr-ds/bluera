@@ -1,16 +1,13 @@
-import 'package:bluera/data/Message.dart';
 import 'package:flutter/material.dart';
 import 'package:bluera/connectors/RF95.dart';
-import 'package:bluera/connectors/Location.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:location/location.dart';
 
 class BluetoothSettingsScreen extends StatefulWidget {
   State createState() => new BluetoothSettingsScreenState();
 }
 
 class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
-  bool isEnabled = true;
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -29,10 +26,10 @@ class BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
             }
 
             return FutureBuilder(
-              future: UserLocationStream().locationServicesAvailable(),
+              future: Location().hasPermission(),
               builder: (context, locationServiceAvailable) {
                 if (locationServiceAvailable.hasData) {
-                  if (locationServiceAvailable.data) {
+                  if (locationServiceAvailable.data == PermissionStatus.granted) {
                     return BluetoothOnScreen();
                   }
                   return LocationServicesDisabledScreen();

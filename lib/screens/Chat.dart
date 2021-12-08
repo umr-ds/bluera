@@ -4,8 +4,8 @@ import 'package:bluera/data/Channel.dart';
 import 'package:bluera/data/Globals.dart';
 import 'package:bluera/connectors/RF95.dart';
 import 'package:bluera/connectors/Database.dart';
-import 'package:location/location.dart';
 import 'package:bluera/connectors/Location.dart';
+import 'package:location/location.dart';
 
 class ChatScreen extends StatefulWidget {
   ChatScreen(this.channel);
@@ -26,7 +26,6 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool _isComposing = false;
 
   final DBConnector dbHelper = DBConnector.instance;
-  var location = Location();
 
   @override
   void dispose() {
@@ -39,13 +38,11 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       _isComposing = false;
     });
 
-    Message _msg = new Message(
-        localUser,
-        text,
-        channel.value.name,
-        DateTime.now().toUtc().millisecondsSinceEpoch.toString(),
-        true,
-        currentLocation);
+    LocationData currentLocation = UserLocation.currentLocation;
+    print(currentLocation);
+
+    Message _msg = new Message(localUser, text, channel.value.name,
+        DateTime.now().toUtc().millisecondsSinceEpoch.toString(), true, currentLocation);
     MessageItem messageItem = new MessageItem(
       message: _msg,
       animationController: new AnimationController(
@@ -65,7 +62,6 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    UserLocationStream().locationService();
     return Scaffold(
       appBar: new AppBar(
         centerTitle: true,
@@ -149,8 +145,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   }
                 },
                 onSubmitted: _handleSubmitted,
-                decoration:
-                    new InputDecoration.collapsed(hintText: "Send a message"),
+                decoration: new InputDecoration.collapsed(hintText: "Send a message"),
                 maxLength: 250,
               ),
             ),
@@ -159,9 +154,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               child: new IconButton(
                 color: Color(0xFF0A3D91),
                 icon: new Icon(Icons.send),
-                onPressed: (_isComposing && rf95 != null)
-                    ? () => _handleSubmitted(_textController.text)
-                    : null,
+                onPressed: (_isComposing && rf95 != null) ? () => _handleSubmitted(_textController.text) : null,
               ),
             ),
           ],

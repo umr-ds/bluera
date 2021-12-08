@@ -3,34 +3,36 @@ import 'package:bluera/data/Channel.dart';
 import 'package:bluera/data/Globals.dart';
 import 'package:bluera/connectors/Database.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 
-  void handleRecvData(String completeMessage) {
-    final DBConnector dbHelper = DBConnector.instance;
-    List<String> messageParts = completeMessage.split("|");
+void handleRecvData(String completeMessage) {
+  final DBConnector dbHelper = DBConnector.instance;
+  List<String> messageParts = completeMessage.split("|");
 
-    String channelString = messageParts[0];
-    String user = messageParts[1];
-    String msgString = messageParts.sublist(3).join("|");
+  String channelString = messageParts[0];
+  String user = messageParts[1];
+  String msgString = messageParts.sublist(3).join("|");
 
-    List<String> lonLatStringList = messageParts[2].split(",");
-    UserLocation _location = UserLocation(
-      longitude: double.parse(lonLatStringList[0]),
-      latitude: double.parse(lonLatStringList[1])
-    );
+  List<String> lonLatStringList = messageParts[2].split(",");
 
-    String tsString = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
+  LocationData _location = LocationData.fromMap({
+    "latitude": double.parse(lonLatStringList[0]),
+    "longitude": double.parse(lonLatStringList[1]),
+  });
 
-    Message msg = Message(user, msgString, channelString, tsString, false, _location);
-    ValueNotifier<Channel> channel = Channel.getChannel(channelString);
+  String tsString = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
 
-    if (channel == null) {
-      channel = ValueNotifier(Channel(channelString, false, [msg]));
-      channels.value.add(channel);
-      dbHelper.insert(channel.value.toMap());
-    } else {
-      channel.value.messages.insert(0, msg);
-      dbHelper.update(channel.value.toMap());
-    }
+  Message msg = Message(user, msgString, channelString, tsString, false, _location);
+  ValueNotifier<Channel> channel = Channel.getChannel(channelString);
 
-    channel.notifyListeners();
+  if (channel == null) {
+    channel = ValueNotifier(Channel(channelString, false, [msg]));
+    channels.value.add(channel);
+    dbHelper.insert(channel.value.toMap());
+  } else {
+    channel.value.messages.insert(0, msg);
+    dbHelper.update(channel.value.toMap());
   }
+
+  channel.notifyListeners();
+}

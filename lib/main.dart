@@ -19,8 +19,8 @@ class BlueRa extends StatelessWidget {
   final DBConnector dbHelper = DBConnector.instance;
 
   Future<bool> initAppState() async {
-    print("Requesting Location Stream");
-    await UserLocationStream().initLocation();
+    print("Starting Location Stream");
+    await UserLocation().initLocationService();
     print("Reconnecting to Bluetooth Device");
     await BluetoothScreenState.reconnect();
     print("Reading username");

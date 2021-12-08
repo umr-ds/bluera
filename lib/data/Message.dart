@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:location/location.dart';
 
 class Message {
   Message(this.user, this.text, this.channel, this.timestamp, this.isLocalUser, this.location);
@@ -9,32 +10,26 @@ class Message {
   final String channel;
   final String timestamp;
   final bool isLocalUser;
-  final UserLocation location;
+  final LocationData location;
 
   Map<String, dynamic> toJson() => {
-    '"user"': '"' + user + '"',
-    '"text"': '"' + text + '"',
-    '"channel"': '"' + channel + '"',
-    '"timestamp"': '"' + timestamp + '"',
-    '"isLocalUser"': '"' + isLocalUser.toString() + '"',
-    '"location"': '"' + location.longitude.toString() + "," + location.latitude.toString() + '"'
-  };
+        '"user"': '"' + user + '"',
+        '"text"': '"' + text + '"',
+        '"channel"': '"' + channel + '"',
+        '"timestamp"': '"' + timestamp + '"',
+        '"isLocalUser"': '"' + isLocalUser.toString() + '"',
+        '"location"': '"' + location.latitude.toString() + "," + location.longitude.toString() + '"'
+      };
 
   static Message fromJson(Map<String, dynamic> model) {
     List<String> lonLatStringList = model["location"].split(",");
-    UserLocation _location = UserLocation(
-      longitude: double.parse(lonLatStringList[0]),
-      latitude: double.parse(lonLatStringList[1])
-    );
+    LocationData _location = LocationData.fromMap({
+      "latitude": double.parse(lonLatStringList[0]),
+      "longitude": double.parse(lonLatStringList[1]),
+    });
 
-    return new Message(
-      model["user"],
-      model["text"],
-      model["channel"],
-      model["timestamp"],
-      model["isLocalUser"].toLowerCase() == "true",
-      _location
-    );
+    return new Message(model["user"], model["text"], model["channel"], model["timestamp"],
+        model["isLocalUser"].toLowerCase() == "true", _location);
   }
 }
 
@@ -53,8 +48,7 @@ class MessageItem extends StatelessWidget {
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              new Text(dateTimeString + " | " + message.user,
-                  style: Theme.of(context).textTheme.caption),
+              new Text(dateTimeString + " | " + message.user, style: Theme.of(context).textTheme.caption),
               new Container(
                 margin: const EdgeInsets.only(top: 5.0),
                 child: new Text(message.text),
@@ -77,8 +71,7 @@ class MessageItem extends StatelessWidget {
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              new Text(message.user + " | " + dateTimeString,
-                  style: Theme.of(context).textTheme.caption),
+              new Text(message.user + " | " + dateTimeString, style: Theme.of(context).textTheme.caption),
               new Container(
                 margin: const EdgeInsets.only(top: 5.0),
                 child: new Text(message.text),
@@ -93,8 +86,7 @@ class MessageItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new SizeTransition(
-        sizeFactor: new CurvedAnimation(
-            parent: animationController, curve: Curves.easeOut),
+        sizeFactor: new CurvedAnimation(parent: animationController, curve: Curves.easeOut),
         axisAlignment: 0.0,
         child: new Container(
           margin: const EdgeInsets.symmetric(vertical: 10.0),
@@ -104,11 +96,4 @@ class MessageItem extends StatelessWidget {
           ),
         ));
   }
-}
-
-class UserLocation {
-  final double latitude;
-  final double longitude;
-
-  UserLocation({this.latitude, this.longitude});
 }
