@@ -2,9 +2,10 @@ import 'package:bluera/data/Channel.dart';
 import 'package:flutter/material.dart';
 import 'package:bluera/data/Message.dart';
 
-String usernameFileName = "user.name";
+String usernameFileName = "username.txt";
 
-String localUser;
+String localUser = null;
+ValueNotifier<String> localUserNotifier = new ValueNotifier(localUser);
 
 ValueNotifier<List<ValueNotifier<Channel>>> channels =
     new ValueNotifier<List<ValueNotifier<Channel>>>(<ValueNotifier<Channel>>[]);

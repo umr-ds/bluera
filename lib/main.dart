@@ -19,32 +19,36 @@ class BlueRa extends StatelessWidget {
   final DBConnector dbHelper = DBConnector.instance;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => FutureBuilder(
+        future: UsernameConnector.read(),
+        builder: (context, localUser) {
+          UserLocationStream().initLocation();
+          BluetoothOffScreenState.reconnect();
 
-    UserLocationStream().initLocation();
+          dbHelper.queryAllRows().then((rows) {
+            for (Map<String, dynamic> row in rows) {
+              String channelName = row[DBConnector.columnName];
+              bool attending = row[DBConnector.columnAttending].toLowerCase() == "true";
+              String messagesJson = row[DBConnector.columnMessages];
+              Iterable jsonObjects = json.decode(messagesJson);
+              List<Message> messages = jsonObjects.map((item) => Message.fromJson(item)).toList();
+              ValueNotifier<Channel> _chn = ValueNotifier<Channel>(Channel(channelName, attending, messages));
+              if (Channel.getChannel(_chn.value.name) != null) {
+                continue;
+              }
+              channels.value.add(_chn);
+              channels.notifyListeners();
+            }
+          });
 
-    BluetoothOffScreenState.reconnect();
-
-    UsernameConnector.read();
-
-    dbHelper.queryAllRows().then((rows) {
-      for (Map<String, dynamic> row in rows) {
-        String channelName = row[DBConnector.columnName];
-        bool attending = row[DBConnector.columnAttending].toLowerCase() == "true";
-        String messagesJson = row[DBConnector.columnMessages];
-        Iterable jsonObjects = json.decode(messagesJson);
-        List<Message> messages = jsonObjects.map((item) => Message.fromJson(item)).toList();
-        ValueNotifier<Channel> _chn = ValueNotifier<Channel>(Channel(channelName, attending, messages));
-        if (Channel.getChannel(_chn.value.name) != null) {
-          continue;
-        }
-        channels.value.add(_chn);
-        channels.notifyListeners();
-      }
-    });
-    return new MaterialApp(
-      title: "BlueRa",
-      home: localUser == null ? UserSettingsScreen() : HomeScreen(),
-    );
-  }
+          if (localUser.hasData) {
+            return new MaterialApp(
+              title: "BlueRa",
+              home: localUser.data == null ? UserSettingsScreen() : HomeScreen(),
+            );
+          } else {
+            return CircularProgressIndicator();
+          }
+        },
+      );
 }

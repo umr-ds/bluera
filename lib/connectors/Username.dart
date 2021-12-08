@@ -10,15 +10,15 @@ class UsernameConnector {
     });
   }
 
-  static void read() {
-    getApplicationDocumentsDirectory().then((directory) {
-      File file = File('${directory.path}/$usernameFileName');
-      try {
-        localUser = file.readAsStringSync();
-      } catch (e) {
-        print("An error occured while reading the username file: " +
-            e.toString());
-      }
-    });
+  static Future<String> read() async {
+    Directory applicationDocuments = await getApplicationDocumentsDirectory();
+    File file = File('${applicationDocuments.path}/$usernameFileName');
+    try {
+      localUser = file.readAsStringSync();
+      localUserNotifier.notifyListeners();
+    } catch (e) {
+      print("An error occured while reading the username file: " + e.toString());
+    }
+    return localUser;
   }
 }
