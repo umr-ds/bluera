@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bluera/connectors/Location.dart';
 import 'package:flutter/material.dart';
 import 'package:bluera/connectors/RF95.dart';
@@ -84,9 +86,6 @@ class BluetoothOnScreen extends StatefulWidget {
 }
 
 class BluetoothScreenState extends State<BluetoothOnScreen> {
-  bool isConnected = false;
-  bool searching = false;
-
   static void reconnect() {
     FlutterBlue.instance.connectedDevices.then((devices) {
       for (BluetoothDevice device in devices) {
@@ -110,34 +109,25 @@ class BluetoothScreenState extends State<BluetoothOnScreen> {
     });
   }
 
-  List<Widget> _defaultHint() {
-    searching = true;
-
-    reconnect();
-
-    searching = false;
-    setState(() => isConnected = rf95 == null);
-    return isConnected ? [ListTile(title: Text("Not Connected."))] : _connectedDevice();
+  Widget _defaultHint() {
+    return ListTile(title: Text("Not connected to a device."));
   }
 
-  List<Widget> _connectedDevice() {
-    return [
-      ListTile(
-          title: Text(rf95.dev.name),
-          subtitle: Text(rf95.dev.id.toString()),
-          trailing: TextButton(
-              child: Text("Disconnect"),
-              onPressed: () async {
-                await rf95.disconnect();
-                rf95 = null;
-                setState(() => isConnected = false);
-              }))
-    ];
+  Widget _connectedDevice() {
+    return ListTile(
+        title: Text(rf95.dev.name),
+        subtitle: Text(rf95.dev.id.toString()),
+        trailing: TextButton(
+            child: Text("Disconnect"),
+            onPressed: () async {
+              await rf95.disconnect();
+              rf95 = null;
+              setState(() => false);
+            }));
   }
 
   Widget _connectedDevicesTile() {
-    setState(() => isConnected = rf95 == null ? false : true);
-    return Column(children: rf95 == null ? _defaultHint() : _connectedDevice());
+    return rf95 == null ? _defaultHint() : _connectedDevice();
   }
 
   @override
@@ -153,8 +143,8 @@ class BluetoothScreenState extends State<BluetoothOnScreen> {
           ),
         ),
         ListTile(
-            title: Text("Conected device:"),
-            trailing: (!isConnected && searching) ? const CircularProgressIndicator() : Text("")),
+          title: Text("Connected device:"),
+        ),
         _connectedDevicesTile(),
         Divider(),
         ListTile(
@@ -165,7 +155,7 @@ class BluetoothScreenState extends State<BluetoothOnScreen> {
               MaterialPageRoute(
                 builder: (context) => BluetoothScanScreen(),
               ),
-            );
+            ).then((_) => setState(() {}));
           },
           trailing: Icon(Icons.arrow_forward_ios),
         ),
@@ -196,10 +186,14 @@ class BluetoothScanScreen extends StatelessWidget {
                   StreamBuilder<List<ScanResult>>(
                     stream: FlutterBlue.instance.scanResults,
                     initialData: [],
-                    builder: (c, snapshot) {
-                      snapshot.data.sort((a, b) => b.rssi.compareTo(a.rssi));
+                    builder: (c, devices) {
+                      // Filter scan results for connectable and named devices
+                      List<ScanResult> connectables =
+                          devices.data.where((r) => r.advertisementData.connectable && !r.device.name.isEmpty).toList();
+                      // Sort scan result by RSSI
+                      connectables.sort((a, b) => b.rssi.compareTo(a.rssi));
                       return Column(
-                        children: snapshot.data
+                        children: connectables
                             .map(
                               (r) => ScanResultTile(r),
                             )
@@ -241,30 +235,58 @@ class ScanResultTile extends StatelessWidget {
     }
   }
 
-  void _connect(BluetoothDevice device) async {
-    rf95 = RF95(device);
-
-    List<BluetoothService> services = await device.discoverServices();
-
-    services.forEach((service) {
-      if (service.uuid == serviceUUID) {
-        for (BluetoothCharacteristic characteristic in service.characteristics) {
-          if (characteristic.uuid == writeCharacteristicUUID) {
-            rf95.writeCharacteristic = characteristic;
-          }
-
-          if (characteristic.uuid == readCharacteristicUUID) {
-            rf95.readCharacteristic = characteristic;
-          }
-        }
-      }
-    });
-  }
-
   void _connectAndReturn(BluetoothDevice device, BuildContext context) async {
-    await device.connect();
-    _connect(device);
+    print("Connection to ${device.id} requested");
+    String error = null;
+    String device_name = device.name.isEmpty ? device.id.toString() : device.name;
+
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text('Connecting to ${device_name}...'),
+              content: Center(child: CircularProgressIndicator(), widthFactor: 1, heightFactor: 1),
+            ));
+
+    try {
+      await device.connect().timeout(const Duration(seconds: 3));
+      rf95 = RF95(device);
+
+      print("Discovering services");
+      List<BluetoothService> services = await device.discoverServices();
+
+      print("Getting Service");
+      BluetoothService service = services.firstWhere((s) => s.uuid == serviceUUID);
+
+      print("Retrieving characteristics");
+      rf95.readCharacteristic = service.characteristics.firstWhere((c) => c.uuid == readCharacteristicUUID);
+      rf95.writeCharacteristic = service.characteristics.firstWhere((c) => c.uuid == writeCharacteristicUUID);
+    } on StateError {
+      error = "Service rf95modem is not available on ${device_name}.";
+    } on TimeoutException {
+      error = "Timeout connecting to rf95modem service on ${device_name}.";
+    } catch (e) {
+      error = "Unknown error connecting to device ${device_name}: ${e}";
+    }
+
     Navigator.pop(context);
+
+    if (error != null) {
+      print(error);
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                title: const Text('Connection Failed'),
+                content: Text(error),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, 'OK'),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ));
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   @override
