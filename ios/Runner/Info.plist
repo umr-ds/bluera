@@ -40,8 +40,14 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Connect to RF95-Modem devices.</string>
+	<string>Connect to RF95 Modem Service devices.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Provide location information to other users.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Provide location information to other users.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Provide location information to other users.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Provide location information to other users.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
