@@ -26,8 +26,9 @@ class RF95 {
 
   StreamSubscription<dynamic> _sub;
 
-  List<int> readBuffer = <int>[];
-  bool readBufferFilling = false;
+  // List<int> readBuffer = <int>[];
+  var readBuffer = "";
+  // bool readBufferFilling = false;
 
   set writeCharacteristic(BluetoothCharacteristic characteristic) {
     this._wCharac = characteristic;
@@ -38,7 +39,7 @@ class RF95 {
   }
 
   Future disconnect() async {
-    readBuffer.clear();
+    readBuffer = "";
 
     _wCharac = null;
 
@@ -52,22 +53,43 @@ class RF95 {
   }
 
   void onData(List<int> data) {
-    if (!readBufferFilling) {
-      if (data.isNotEmpty &&
-          utf8.decode(data.getRange(0, 3).toList()) == "+RX") {
-        readBufferFilling = true;
+    // decode data and read data into buffer
+    readBuffer += utf8.decode(data);
+
+    int lineEnd = readBuffer.indexOf("\n");
+
+    // continue reading, while lineEnd does exist
+    while (-1 != (lineEnd = readBuffer.indexOf("\n"))) {
+      // extract line and remain rest in buffer
+      String line = readBuffer.substring(0, lineEnd);
+      readBuffer = readBuffer.substring(lineEnd + 1, readBuffer.length);
+      print("Remaining read buffer: '$readBuffer' (len: ${readBuffer.length})");
+
+      // received AT response
+      if (line.startsWith("+")) {
+        if (line.substring(1, 3) == "RX") {
+          List<String> parts = line.substring(4).split(",");
+
+          // get msg length
+          int len = int.parse(parts[0]);
+
+          // hex-decode message
+          List<int> decodedHex = hex.decode(parts[1]);
+          var msg = String.fromCharCodes(decodedHex);
+
+          int rssi = int.parse(parts[2]);
+          int snr = int.parse(parts[3]);
+
+          print("Received $len bytes (RSSI: $rssi, SNR: $snr): $msg");
+
+          handleRecvData(msg);
+        } else {
+          print("Unknown command: $line");
+        }
+      } else {
+        // non AT response
+        print("Unknown: $line");
       }
-    }
-
-    if (readBufferFilling && data.last == "\n".codeUnits.first) {
-      readBuffer.addAll(data);
-      String completeMessage = decodeMessage(readBuffer);
-      readBuffer.clear();
-      readBufferFilling = false;
-
-      handleRecvData(completeMessage);
-    } else {
-      readBuffer.addAll(data);
     }
   }
 
@@ -83,13 +105,9 @@ class RF95 {
   }
 
   List<int> encodeMessage(Message msg) {
-    String location = msg.location.longitude.toString() +
-        "," +
-        msg.location.latitude.toString();
-    final String completeMessage =
-        msg.channel + "|" + msg.user + "|" + location + "|" + msg.text;
-    return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n")
-        .codeUnits;
+    String location = msg.location.longitude.toString() + "," + msg.location.latitude.toString();
+    final String completeMessage = msg.channel + "|" + msg.user + "|" + location + "|" + msg.text;
+    return (sendCommand + hex.encode(utf8.encode(completeMessage)) + "\n").codeUnits;
   }
 
   Future send(Message msg) async {
@@ -98,13 +116,13 @@ class RF95 {
     }
   }
 
-  String decodeMessage(List<int> msg) {
-    String entireMessage = utf8.decode(msg).split(",")[1];
+  // String decodeMessage(List<int> msg) {
+  //   String entireMessage = utf8.decode(msg).split(",")[1];
 
-    List<int> decodedHex = hex.decode(entireMessage);
+  //   List<int> decodedHex = hex.decode(entireMessage);
 
-    return new String.fromCharCodes(decodedHex);
-  }
+  //   return new String.fromCharCodes(decodedHex);
+  // }
 
   void setMode(String mode) async {
     if (dev != null && this.writeCharacteristic != null) {

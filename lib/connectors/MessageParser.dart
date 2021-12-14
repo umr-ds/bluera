@@ -5,9 +5,9 @@ import 'package:bluera/connectors/Database.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
-void handleRecvData(String completeMessage) {
+void handleRecvData(String blueraMessage) {
   final DBConnector dbHelper = DBConnector.instance;
-  List<String> messageParts = completeMessage.split("|");
+  List<String> messageParts = blueraMessage.split("|");
 
   String channelString = messageParts[0];
   String user = messageParts[1];
