@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:bluera/connectors/RF95.dart';
 
 class LoraSettingsScreen extends StatelessWidget {
-  void _setAndReturn(BuildContext context, String mode) {
-    rf95.setMode(mode);
+  void _setAndReturn(BuildContext context, int mode) {
+    rf95.mode(mode);
 
     Navigator.pop(context);
   }
@@ -21,7 +21,7 @@ class LoraSettingsScreen extends StatelessWidget {
               subtitle: Text("Bw: 125 kHz, Cr: 4/5, Sf: 128chips/symbol"),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                _setAndReturn(context, "0");
+                _setAndReturn(context, 0);
               }),
           Divider(),
           ListTile(
@@ -29,7 +29,7 @@ class LoraSettingsScreen extends StatelessWidget {
               subtitle: Text("Bw: 500 kHz, Cr: 4/5, Sf: 128chips/symbol"),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                _setAndReturn(context, "1");
+                _setAndReturn(context, 1);
               }),
           Divider(),
           ListTile(
@@ -37,7 +37,7 @@ class LoraSettingsScreen extends StatelessWidget {
               subtitle: Text("Bw: 31.25 kHz, Cr: 4/8, Sf: 512chips/symbol"),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                _setAndReturn(context, "2");
+                _setAndReturn(context, 2);
               }),
           Divider(),
           ListTile(
@@ -45,7 +45,7 @@ class LoraSettingsScreen extends StatelessWidget {
               subtitle: Text("Bw: 125 kHz, Cr: 4/8, Sf: 4096chips/symbol"),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                _setAndReturn(context, "3");
+                _setAndReturn(context, 3);
               })
         ]));
   }

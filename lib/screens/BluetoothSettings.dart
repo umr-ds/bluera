@@ -94,13 +94,13 @@ class BluetoothScreenState extends State<BluetoothOnScreen> {
             if (service.uuid == serviceUUID) {
               rf95 = RF95(device);
               for (BluetoothCharacteristic characteristic in service.characteristics) {
-                if (characteristic.uuid == writeCharacteristicUUID) {
-                  rf95.writeCharacteristic = characteristic;
-                }
+                // if (characteristic.uuid == writeCharacteristicUUID) {
+                //   rf95.writeCharacteristic = characteristic;
+                // }
 
-                if (characteristic.uuid == readCharacteristicUUID) {
-                  rf95.readCharacteristic = characteristic;
-                }
+                // if (characteristic.uuid == readCharacteristicUUID) {
+                //   rf95.readCharacteristic = characteristic;
+                // }
               }
             }
           });
@@ -248,18 +248,8 @@ class ScanResultTile extends StatelessWidget {
             ));
 
     try {
-      await device.connect().timeout(const Duration(seconds: 3));
       rf95 = RF95(device);
-
-      print("Discovering services");
-      List<BluetoothService> services = await device.discoverServices();
-
-      print("Getting Service");
-      BluetoothService service = services.firstWhere((s) => s.uuid == serviceUUID);
-
-      print("Retrieving characteristics");
-      rf95.readCharacteristic = service.characteristics.firstWhere((c) => c.uuid == readCharacteristicUUID);
-      rf95.writeCharacteristic = service.characteristics.firstWhere((c) => c.uuid == writeCharacteristicUUID);
+      await rf95.connect().timeout(const Duration(seconds: 5));
     } on StateError {
       error = "Service rf95modem is not available on ${device_name}.";
     } on TimeoutException {
@@ -272,6 +262,9 @@ class ScanResultTile extends StatelessWidget {
 
     if (error != null) {
       print(error);
+
+      rf95.disconnect();
+      rf95 = null;
       showDialog(
           context: context,
           builder: (context) => AlertDialog(

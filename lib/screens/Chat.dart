@@ -51,7 +51,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       ),
     );
 
-    rf95.send(_msg);
+    rf95.tx(_msg);
 
     setState(() {
       channel.value.messages.insert(0, _msg);
