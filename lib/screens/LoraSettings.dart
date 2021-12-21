@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:bluera/connectors/RF95.dart';
 
-class LoraSettingsScreen extends StatelessWidget {
-  void _setAndReturn(BuildContext context, int mode) {
-    rf95.mode(mode);
+class LoraSettingsScreen extends StatefulWidget {
+  State createState() => new LoraSettingsScreenState();
+}
 
-    Navigator.pop(context);
+class LoraSettingsScreenState extends State<LoraSettingsScreen> {
+  void _setMode(BuildContext context, int mode) async {
+    await rf95.setMode(mode);
+    await setState(() {});
   }
 
   @override
@@ -16,37 +19,45 @@ class LoraSettingsScreen extends StatelessWidget {
           backgroundColor: Color(0xFF0A3D91),
         ),
         body: ListView(children: <Widget>[
-          ListTile(
-              title: Text("Medium Range"),
-              subtitle: Text("Bw: 125 kHz, Cr: 4/5, Sf: 128chips/symbol"),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                _setAndReturn(context, 0);
-              }),
+          RadioListTile<int>(
+            title: Text("0 - Medium Range"),
+            subtitle: Text("Bw: 125 kHz, Cr: 4/5, Sf: 128chips/symbol"),
+            value: 0,
+            groupValue: rf95.mode,
+            onChanged: (value) => _setMode(context, value),
+          ),
           Divider(),
-          ListTile(
-              title: Text("Fast+Short Range"),
-              subtitle: Text("Bw: 500 kHz, Cr: 4/5, Sf: 128chips/symbol"),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                _setAndReturn(context, 1);
-              }),
+          RadioListTile<int>(
+            title: Text("1 - Fast+Short Range"),
+            subtitle: Text("Bw: 500 kHz, Cr: 4/5, Sf: 128chips/symbol"),
+            value: 1,
+            groupValue: rf95.mode,
+            onChanged: (value) => _setMode(context, value),
+          ),
           Divider(),
-          ListTile(
-              title: Text("Slow+Long Range"),
-              subtitle: Text("Bw: 31.25 kHz, Cr: 4/8, Sf: 512chips/symbol"),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                _setAndReturn(context, 2);
-              }),
+          RadioListTile<int>(
+            title: Text("2 - Slow+Long Range"),
+            subtitle: Text("Bw: 31.25 kHz, Cr: 4/8, Sf: 512chips/symbol"),
+            value: 2,
+            groupValue: rf95.mode,
+            onChanged: (value) => _setMode(context, value),
+          ),
           Divider(),
-          ListTile(
-              title: Text("Slow+Long Range"),
-              subtitle: Text("Bw: 125 kHz, Cr: 4/8, Sf: 4096chips/symbol"),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                _setAndReturn(context, 3);
-              })
+          RadioListTile<int>(
+            title: Text("3 - Slow+Long Range"),
+            subtitle: Text("Bw: 125 kHz, Cr: 4/8, Sf: 4096chips/symbol"),
+            value: 3,
+            groupValue: rf95.mode,
+            onChanged: (value) => _setMode(context, value),
+          ),
+          Divider(),
+          RadioListTile<int>(
+            title: Text("4 - Slow+Long Range"),
+            subtitle: Text("Bw: 125 kHz, Cr: 4/5, Sf: 2048chips/symbol"),
+            value: 4,
+            groupValue: rf95.mode,
+            onChanged: (value) => _setMode(context, value),
+          ),
         ]));
   }
 }

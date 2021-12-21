@@ -26,7 +26,7 @@ class RF95 {
 
   // Info
   String _firmware;
-  String _mode;
+  int _mode;
   double _frequency;
 
   var readBuffer = "";
@@ -56,9 +56,6 @@ class RF95 {
 
     print("Query device info");
     await info();
-
-    print("Set frequency to 868.50");
-    await freq(868.50);
 
     print("rf95modem, firmware ${_firmware}, mode ${_mode}, freq ${_frequency} is initialized");
   }
@@ -135,7 +132,7 @@ class RF95 {
             _firmware = parts[1].trim();
             break;
           case "modem config":
-            _mode = parts[1].split("|")[0].trim();
+            _mode = int.parse(parts[1].split("|")[0]);
             break;
           case "frequency":
             _frequency = double.parse(parts[1]);
@@ -156,15 +153,20 @@ class RF95 {
     await _write("AT+TX=" + hex.encode(utf8.encode(completeMessage)));
   }
 
-  void mode(int mode) async {
+  void setMode(int mode) async {
     await _write("AT+MODE=" + mode.toString());
+    _mode = mode;
+  }
+
+  int get mode {
+    return _mode;
   }
 
   void info() async {
     await _write("AT+INFO");
   }
 
-  void freq(double freq) async {
+  void setFreq(double freq) async {
     await _write("AT+FREQ=" + freq.toString());
   }
 
