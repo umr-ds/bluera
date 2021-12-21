@@ -153,21 +153,26 @@ class RF95 {
     await _write("AT+TX=" + hex.encode(utf8.encode(completeMessage)));
   }
 
+  int get mode {
+    return _mode;
+  }
+
   void setMode(int mode) async {
     await _write("AT+MODE=" + mode.toString());
     _mode = mode;
-  }
-
-  int get mode {
-    return _mode;
   }
 
   void info() async {
     await _write("AT+INFO");
   }
 
+  double get freq {
+    return _frequency;
+  }
+
   void setFreq(double freq) async {
     await _write("AT+FREQ=" + freq.toString());
+    _frequency = freq;
   }
 
   void _write(String cmd) async {
