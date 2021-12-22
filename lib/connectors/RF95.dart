@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:convert/convert.dart';
 
@@ -36,7 +37,13 @@ class RF95 {
   }
 
   Future connect() async {
-    await dev.connect();
+    try {
+      await dev.connect();
+    } on PlatformException catch (e) {
+      if (e.code == 'already_connected') {
+        print("Already connected to this device. Doing nothing.");
+      }
+    }
 
     print("Discovering services");
     List<BluetoothService> services = await dev.discoverServices();

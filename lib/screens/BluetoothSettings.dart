@@ -86,27 +86,28 @@ class BluetoothOnScreen extends StatefulWidget {
 }
 
 class BluetoothScreenState extends State<BluetoothOnScreen> {
-  static void reconnect() {
-    FlutterBlue.instance.connectedDevices.then((devices) {
-      for (BluetoothDevice device in devices) {
-        device.discoverServices().then((services) {
-          services.forEach((service) {
-            if (service.uuid == serviceUUID) {
-              rf95 = RF95(device);
-              for (BluetoothCharacteristic characteristic in service.characteristics) {
-                // if (characteristic.uuid == writeCharacteristicUUID) {
-                //   rf95.writeCharacteristic = characteristic;
-                // }
+  static void reconnect() async {
+    var connectedDevices = await FlutterBlue.instance.connectedDevices;
 
-                // if (characteristic.uuid == readCharacteristicUUID) {
-                //   rf95.readCharacteristic = characteristic;
-                // }
-              }
-            }
-          });
-        });
+    if (connectedDevices.isEmpty) {
+      // There are not connected devices, so the user has to reconnect manually.
+      print("No devices to reconnect to.");
+      return;
+    }
+
+    for (BluetoothDevice dev in connectedDevices) {
+      var services = await dev.discoverServices();
+
+      for (BluetoothService service in services) {
+        if (service.uuid == serviceUUID) {
+          print(
+              "Were previously connected to ${dev.name} with ID ${dev.id}, trying to reconnect.");
+          rf95 = RF95(dev);
+          rf95.connect().timeout(const Duration(seconds: 5));
+          return;
+        }
       }
-    });
+    }
   }
 
   Widget _defaultHint() {
