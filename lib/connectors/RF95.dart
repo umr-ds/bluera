@@ -4,9 +4,14 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:convert/convert.dart';
+import 'package:cbor/cbor.dart';
 
 import 'package:bluera/data/Message.dart';
-import 'package:bluera/connectors/MessageParser.dart';
+import 'package:bluera/data/Channel.dart';
+import 'package:bluera/data/Globals.dart';
+import 'package:bluera/connectors/Database.dart';
+import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 
 Guid serviceUUID = new Guid("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 Guid writeCharacteristicUUID = new Guid("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -104,14 +109,13 @@ class RF95 {
 
           // hex-decode message
           List<int> decodedHex = hex.decode(parts[1]);
-          var msg = String.fromCharCodes(decodedHex);
 
           int rssi = int.parse(parts[2]);
           int snr = int.parse(parts[3]);
 
-          print("Received $len bytes (RSSI: $rssi, SNR: $snr): $msg");
+          print("Received $len bytes (RSSI: $rssi, SNR: $snr)");
 
-          handleRecvData(msg);
+          handleRX(decodedHex);
         } else if (line.substring(1, 3) == "OK" || line.substring(1, 5) == "SENT") {
           if (_ok == null) {
             print("Received '${line}' without open request.");
@@ -153,11 +157,57 @@ class RF95 {
     }
   }
 
-  void tx(Message msg) async {
-    String location = msg.location.longitude.toString() + "," + msg.location.latitude.toString();
-    String completeMessage = msg.channel + "|" + msg.user + "|" + location + "|" + msg.text;
+  void handleRX(List<int> blueraMessage) {
+    final DBConnector dbHelper = DBConnector.instance;
 
-    await _write("AT+TX=" + hex.encode(utf8.encode(completeMessage)));
+    final cborInst = Cbor();
+
+    cborInst.decodeFromList(blueraMessage);
+
+    List<dynamic> data = cborInst.getDecodedData();
+    String channelName = data[0];
+    String username = data[1];
+    double long = data[2];
+    double lat = data[3];
+    String msgText = data[4];
+
+    LocationData _location = LocationData.fromMap({
+      "latitude": lat,
+      "longitude": long,
+    });
+
+    String tsString = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
+
+    Message msg =
+        Message(username, msgText, channelName, tsString, false, _location);
+    ValueNotifier<Channel> channel = Channel.getChannel(channelName);
+
+    if (channel == null) {
+      channel = ValueNotifier(Channel("Test", false, [msg]));
+      channels.value.add(channel);
+      dbHelper.insert(channel.value.toMap());
+    } else {
+      channel.value.messages.insert(0, msg);
+      dbHelper.update(channel.value.toMap());
+    }
+
+    channel.notifyListeners();
+  }
+
+  void tx(Message msg) async {
+    final cborInst = Cbor();
+    final encoder = cborInst.encoder;
+
+    encoder.writeString(msg.channel);
+    encoder.writeString(msg.user);
+    encoder.writeDouble(msg.location.longitude);
+    encoder.writeDouble(msg.location.latitude);
+    encoder.writeString(msg.text);
+
+    final buff = cborInst.output.getData();
+    String cmd = hex.encode(buff.toList());
+
+    await _write("AT+TX=${cmd}\n");
   }
 
   int get mode {

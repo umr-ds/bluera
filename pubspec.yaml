@@ -27,6 +27,7 @@ dependencies:
   provider: 6.0.1
   location: 4.3.0
   shared_preferences: 2.0.11
+  cbor: 4.1.0
 
   # IMPORTANT:
   # This version of flutter blue has a bug that causes an exception when trying to reconnect to a known device.
