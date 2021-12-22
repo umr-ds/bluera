@@ -27,6 +27,11 @@ dependencies:
   provider: 6.0.1
   location: 4.3.0
 
+  # IMPORTANT:
+  # This version of flutter blue has a bug that causes an exception when trying to reconnect to a known device.
+  # Flutter blue will try to parse an byte array although the parameter in question is a string.
+  # The cause is a missing break in an switch statement.
+  # Please see https://github.com/boskokg/flutter_blue/pull/17/commits/1bd694bb5f11a2b47427cb7d2ad18e99fae32df5 for the fix.
   flutter_blue:
     git:
       url: git@github.com:boskokg/flutter_blue.git
