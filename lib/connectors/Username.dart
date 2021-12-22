@@ -1,24 +1,21 @@
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bluera/data/Globals.dart';
 
+final String _usernameKey = "username";
+
 class UsernameConnector {
-  static void write(String text) {
-    getApplicationDocumentsDirectory().then((directory) {
-      final File file = File('${directory.path}/$usernameFileName');
-      file.writeAsStringSync(text);
-    });
+  static void write(String username) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.setString(_usernameKey, username);
   }
 
   static Future<String> read() async {
-    Directory applicationDocuments = await getApplicationDocumentsDirectory();
-    File file = File('${applicationDocuments.path}/$usernameFileName');
-    try {
-      localUser = file.readAsStringSync();
-      localUserNotifier.notifyListeners();
-    } catch (e) {
-      print("An error occured while reading the username file: " + e.toString());
-    }
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    localUser = prefs.getString(_usernameKey) ?? null;
+    localUserNotifier.notifyListeners();
+
     return localUser;
   }
 }
