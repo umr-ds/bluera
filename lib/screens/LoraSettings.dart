@@ -135,7 +135,10 @@ class LoraSettingsScreenState extends State<LoraSettingsScreen> {
                   ),
                   Text(
                     "Not connected to rf95modem devive.",
-                    style: Theme.of(context).primaryTextTheme.subtitle1.copyWith(color: Colors.white),
+                    style: Theme.of(context)
+                        .primaryTextTheme
+                        .subtitle1
+                        .copyWith(color: Colors.white),
                   ),
                 ],
               ),
@@ -173,6 +176,10 @@ class LoraSettingsScreenState extends State<LoraSettingsScreen> {
             ),
           ),
           Divider(),
+          ListTile(
+            title: Text("Physical Properties"),
+            subtitle: Text("Select the option meeting your requirements."),
+          ),
           RadioListTile<int>(
             title: Text("0 - Medium Range"),
             subtitle: Text("Bw: 125 kHz, Cr: 4/5, Sf: 128chips/symbol"),
@@ -180,7 +187,6 @@ class LoraSettingsScreenState extends State<LoraSettingsScreen> {
             groupValue: rf95.mode,
             onChanged: (value) => _setMode(context, value),
           ),
-          Divider(),
           RadioListTile<int>(
             title: Text("1 - Fast+Short Range"),
             subtitle: Text("Bw: 500 kHz, Cr: 4/5, Sf: 128chips/symbol"),
@@ -188,7 +194,6 @@ class LoraSettingsScreenState extends State<LoraSettingsScreen> {
             groupValue: rf95.mode,
             onChanged: (value) => _setMode(context, value),
           ),
-          Divider(),
           RadioListTile<int>(
             title: Text("2 - Slow+Long Range"),
             subtitle: Text("Bw: 31.25 kHz, Cr: 4/8, Sf: 512chips/symbol"),
@@ -196,7 +201,6 @@ class LoraSettingsScreenState extends State<LoraSettingsScreen> {
             groupValue: rf95.mode,
             onChanged: (value) => _setMode(context, value),
           ),
-          Divider(),
           RadioListTile<int>(
             title: Text("3 - Slow+Long Range"),
             subtitle: Text("Bw: 125 kHz, Cr: 4/8, Sf: 4096chips/symbol"),
@@ -204,7 +208,6 @@ class LoraSettingsScreenState extends State<LoraSettingsScreen> {
             groupValue: rf95.mode,
             onChanged: (value) => _setMode(context, value),
           ),
-          Divider(),
           RadioListTile<int>(
             title: Text("4 - Slow+Long Range"),
             subtitle: Text("Bw: 125 kHz, Cr: 4/5, Sf: 2048chips/symbol"),
