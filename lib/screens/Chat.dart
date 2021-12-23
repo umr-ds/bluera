@@ -1,3 +1,4 @@
+import 'package:bluera/screens/ChatMap.dart';
 import 'package:flutter/material.dart';
 import 'package:bluera/data/Message.dart';
 import 'package:bluera/data/Channel.dart';
@@ -87,7 +88,18 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         ),
         backgroundColor: Color(0xFF0A3D91),
         actions: <Widget>[
-          new IconButton(
+          IconButton(
+            icon: new Icon(Icons.map),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatMapScreen(channel: channel.value),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: new Icon(Icons.open_in_new),
             onPressed: () {
               dbHelper.update(channel.value.toMap());
