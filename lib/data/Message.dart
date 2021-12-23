@@ -1,16 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
+import 'package:cbor/cbor.dart';
 
 class Message {
-  Message(this.user, this.text, this.channel, this.timestamp, this.isLocalUser, this.location);
-
-  final String user;
-  final String text;
   final String channel;
+  final String user;
+  final LocationData location;
+  final String text;
+
   final String timestamp;
   final bool isLocalUser;
-  final LocationData location;
+
+  double rssi;
+  double snr;
+
+  Message(this.channel, this.user, this.location, this.text, this.timestamp, this.isLocalUser);
+
+  static Message fromCbor(List<int> cborMessage, bool isLocalUser) {
+    // decode cbor
+    final cborInst = Cbor();
+    cborInst.decodeFromList(cborMessage);
+    var data = cborInst.getDecodedData();
+
+    // return message
+    return Message(
+      data[0],
+      data[1],
+      LocationData.fromMap({
+        "latitude": data[2],
+        "longitude": data[3],
+      }),
+      data[4],
+      DateTime.now().toUtc().millisecondsSinceEpoch.toString(),
+      isLocalUser,
+    );
+  }
+
+  List<int> toCbor() {
+    final cborInst = Cbor();
+    final encoder = cborInst.encoder;
+
+    encoder.writeString(channel);
+    encoder.writeString(user);
+    encoder.writeDouble(location.latitude);
+    encoder.writeDouble(location.longitude);
+    encoder.writeString(text);
+
+    return cborInst.output.getData().toList();
+  }
 
   Map<String, dynamic> toJson() => {
         '"user"': '"' + user + '"',
@@ -28,8 +66,14 @@ class Message {
       "longitude": double.parse(lonLatStringList[1]),
     });
 
-    return new Message(model["user"], model["text"], model["channel"], model["timestamp"],
-        model["isLocalUser"].toLowerCase() == "true", _location);
+    return new Message(
+      model["channel"],
+      model["user"],
+      _location,
+      model["text"],
+      model["timestamp"],
+      model["isLocalUser"].toLowerCase() == "true",
+    );
   }
 }
 

@@ -41,8 +41,14 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     LocationData currentLocation = UserLocation.currentLocation;
     print(currentLocation);
 
-    Message _msg = new Message(localUser, text, channel.value.name,
-        DateTime.now().toUtc().millisecondsSinceEpoch.toString(), true, currentLocation);
+    Message _msg = new Message(
+      channel.value.name,
+      localUser,
+      currentLocation,
+      text,
+      DateTime.now().toUtc().millisecondsSinceEpoch.toString(),
+      true,
+    );
     MessageItem messageItem = new MessageItem(
       message: _msg,
       animationController: new AnimationController(
