@@ -5,6 +5,8 @@ import 'package:bluera/data/Message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
+import 'package:intl/intl.dart';
 
 class ChatMapScreen extends StatelessWidget {
   final Channel channel;
@@ -28,8 +30,8 @@ class ChatMapScreen extends StatelessWidget {
       ),
     ];
 
-    // var marker = Marker();
-    // marker.key.
+    /// Used to trigger showing/hiding of popups.
+    final PopupController _popupLayerController = PopupController();
 
     for (Message msg in channel.messages) {
       // if a marker for the user already exits, skip this message
@@ -62,7 +64,7 @@ class ChatMapScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              channel.name,
+              "Channel: ${channel.name}",
               style: TextStyle(fontSize: 18.0),
             ),
             Text(
@@ -77,19 +79,84 @@ class ChatMapScreen extends StatelessWidget {
         options: new MapOptions(
           center: LatLng(UserLocation.currentLocation.latitude, UserLocation.currentLocation.longitude),
           zoom: 13.0,
+          onTap: (TapPos, LatLon) => _popupLayerController.hideAllPopups(), // Hide popup when the map is tapped.
         ),
-        layers: [
-          new TileLayerOptions(
-            urlTemplate: "https://api.mapbox.com/styles/v1/"
-                "{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
-            additionalOptions: {
-              'accessToken':
-                  'pk.eyJ1IjoiaG9lY2hzdCIsImEiOiJja3hqMzJrdmIxaXpmMnZucGF2MjZzYzB2In0.i2MSdkm09lLcTZ6JLvDBFQ',
-              'id': 'mapbox/streets-v11',
-            },
+        children: [
+          TileLayerWidget(
+            options: TileLayerOptions(
+              urlTemplate: "https://api.mapbox.com/styles/v1/"
+                  "{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+              additionalOptions: {
+                'accessToken':
+                    'pk.eyJ1IjoiaG9lY2hzdCIsImEiOiJja3hqMzJrdmIxaXpmMnZucGF2MjZzYzB2In0.i2MSdkm09lLcTZ6JLvDBFQ',
+                'id': 'mapbox/streets-v11',
+              },
+            ),
           ),
-          new MarkerLayerOptions(markers: markers),
+          PopupMarkerLayerWidget(
+            options: PopupMarkerLayerOptions(
+                popupController: _popupLayerController,
+                markers: markers,
+                markerRotateAlignment: PopupMarkerLayerOptions.rotationAlignmentFor(AnchorAlign.top),
+                popupBuilder: (BuildContext context, Marker marker) {
+                  for (Message msg in channel.messages) {
+                    if (Key(msg.user) == marker.key) {
+                      return UserPopup(msg: msg);
+                    }
+                  }
+                  return UserPopup();
+                }),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class UserPopup extends StatelessWidget {
+  final Message msg;
+  const UserPopup({Key key, this.msg}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Distance distance = new Distance();
+    final double distance_meter = distance(new LatLng(msg.location.latitude, msg.location.longitude),
+        new LatLng(UserLocation.currentLocation.latitude, UserLocation.currentLocation.longitude));
+
+    return Container(
+      width: 250,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                'User: ${msg.user}',
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.0,
+                ),
+              ),
+              const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+              Text(
+                'Last message received ${msg.timestampString} from ${distance_meter} m away:',
+                textAlign: TextAlign.right,
+              ),
+              const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
+              Text(
+                msg.text,
+                style: TextStyle(fontStyle: FontStyle.italic),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

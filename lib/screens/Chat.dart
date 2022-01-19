@@ -77,7 +77,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              channel.value.name,
+              "Channel: ${channel.value.name}",
               style: TextStyle(fontSize: 18.0),
             ),
             Text(

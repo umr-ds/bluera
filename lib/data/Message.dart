@@ -75,6 +75,10 @@ class Message {
       model["isLocalUser"].toLowerCase() == "true",
     );
   }
+
+  String get timestampString => new DateFormat("HH:mm:ss (dd/MM/yyyy)")
+      .format(DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)))
+      .toString();
 }
 
 class MessageItem extends StatelessWidget {
@@ -84,15 +88,13 @@ class MessageItem extends StatelessWidget {
   final AnimationController animationController;
 
   List<Widget> buildMessageRow(BuildContext context) {
-    DateTime timestamp = new DateTime.fromMillisecondsSinceEpoch(int.parse(message.timestamp));
-    String dateTimeString = new DateFormat("hh:mm:ss (dd/MM/yy)").format(timestamp).toString();
     if (message.isLocalUser) {
       return <Widget>[
         new Expanded(
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              new Text(dateTimeString + " | " + message.user, style: Theme.of(context).textTheme.caption),
+              new Text(message.timestampString + " | " + message.user, style: Theme.of(context).textTheme.caption),
               new Container(
                 margin: const EdgeInsets.only(top: 5.0),
                 child: new Text(message.text),
@@ -115,7 +117,7 @@ class MessageItem extends StatelessWidget {
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              new Text(message.user + " | " + dateTimeString, style: Theme.of(context).textTheme.caption),
+              new Text(message.user + " | " + message.timestampString, style: Theme.of(context).textTheme.caption),
               new Container(
                 margin: const EdgeInsets.only(top: 5.0),
                 child: new Text(message.text),
