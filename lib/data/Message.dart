@@ -43,8 +43,8 @@ class Message {
 
     encoder.writeString(channel);
     encoder.writeString(user);
-    encoder.writeFloat(location.latitude);
-    encoder.writeFloat(location.longitude);
+    encoder.writeSingle(location.latitude);
+    encoder.writeSingle(location.longitude);
     encoder.writeString(text);
 
     return cborInst.output.getData().toList();
