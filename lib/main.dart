@@ -33,8 +33,10 @@ class BlueRa extends StatelessWidget {
       bool attending = row[DBConnector.columnAttending].toLowerCase() == "true";
       String messagesJson = row[DBConnector.columnMessages];
       Iterable jsonObjects = json.decode(messagesJson);
-      List<Message> messages = jsonObjects.map((item) => Message.fromJson(item)).toList();
-      ValueNotifier<Channel> _chn = ValueNotifier<Channel>(Channel(channelName, attending, messages));
+      List<Message> messages =
+          jsonObjects.map((item) => Message.fromJson(item)).toList();
+      ValueNotifier<Channel> _chn =
+          ValueNotifier<Channel>(Channel(channelName, attending, messages));
       if (Channel.getChannel(_chn.value.name) != null) {
         continue;
       }
